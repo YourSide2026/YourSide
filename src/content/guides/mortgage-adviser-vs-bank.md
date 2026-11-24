@@ -81,7 +81,7 @@ An adviser is especially worth talking to if you:
 
 For most home buyers, a mortgage adviser offers more choice, more support and usually no extra cost. The bank is still where your loan ends up, but an adviser helps make sure it’s the *right* bank and the *right* structure for you.
 
-If you’d like a second opinion on an offer you already have, or you’re just getting started, [talk to a YourSide adviser](/contact/). You can also see roughly how much you could borrow with our [borrowing calculator](/borrowing-calculator/).
+If you’d like a second opinion on an offer you already have, or you’re just getting started, [talk to a YourSide adviser](/contact/). You can also see roughly how much you could borrow with our [borrowing calculator](/calculators/how-much-can-i-borrow/).
 
 ## Frequently asked questions
 

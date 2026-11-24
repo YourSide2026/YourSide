@@ -4,6 +4,7 @@ import ContactForm from '../components/ContactForm.astro';
 import { services } from '../data/services';
 import { advisers } from '../data/advisers';
 import GuideCard from '../components/guides/GuideCard.astro';
+import { tools, toolUrl } from '../data/tools';
 import { getGuides } from '../lib/guides';
 
 const latestGuides = (await getGuides()).slice(0, 3);
@@ -34,7 +35,7 @@ const latestGuides = (await getGuides()).slice(0, 3);
         </p>
         <div class="actions rise" style="--d:240ms">
           <a href="/contact/" class="btn btn--light">Talk to an adviser</a>
-          <a href="/borrowing-calculator/" class="btn btn--outline-light">How much can I borrow?</a>
+          <a href="/calculators/how-much-can-i-borrow/" class="btn btn--outline-light">How much can I borrow?</a>
         </div>
         <ul class="trust rise" style="--d:320ms">
           <li>Advice at no cost to you</li>
@@ -129,18 +130,21 @@ const latestGuides = (await getGuides()).slice(0, 3);
         <span class="eyebrow">Helpful tools</span>
         <h2>Get a feel for your numbers.</h2>
       </div>
-      <div class="grid grid--2">
-        <a class="card tool" href="/borrowing-calculator/">
-          <h3>Borrowing calculator</h3>
-          <p>See roughly how much you could borrow, what deposit you need and what your repayments might look like.</p>
-          <span class="more">Try the calculator <span aria-hidden="true">→</span></span>
-        </a>
+      <div class="grid grid--3">
+        {tools.map((t) => (
+          <a class="card tool" href={toolUrl(t.slug)}>
+            <h3>{t.title}</h3>
+            <p>{t.blurb}</p>
+            <span class="more">{t.name} <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
         <a class="card tool" href="/interest-rates/">
-          <h3>Interest rates</h3>
+          <h3>What are banks charging?</h3>
           <p>Compare current home loan rates from New Zealand’s main lenders, then ask us which suits you best.</p>
-          <span class="more">See interest rates <span aria-hidden="true">→</span></span>
+          <span class="more">Interest rates <span aria-hidden="true">→</span></span>
         </a>
       </div>
+      <p class="all-tools"><a class="btn btn--ghost" href="/calculators/">All calculators</a></p>
     </div>
   </section>
 
@@ -299,7 +303,9 @@ const latestGuides = (await getGuides()).slice(0, 3);
   .reasons p { margin: 0; }
   @media (max-width: 820px) { .why { grid-template-columns: 1fr; } }
 
-  .tool { border-top: 4px solid var(--ultraviolet); }
+  .tool { border-top: 4px solid var(--ultraviolet); display: flex; flex-direction: column; }
+  .tool .more { margin-top: auto; padding-top: 1rem; }
+  .all-tools { margin: 2rem 0 0; }
 
   .team { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
   .person { text-align: center; }

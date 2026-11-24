@@ -70,7 +70,7 @@ Many people split their loan, for example fixing most of it and keeping a smalle
 
 How much a lender will offer depends on your income, expenses, existing debts, deposit and the property you’re buying. Lenders also check that you could still afford repayments if rates rose, using a **test rate** that’s higher than today’s actual rates. Debt-to-income rules also cap most borrowing at a multiple of your income.
 
-For a quick estimate, try our [borrowing calculator](/borrowing-calculator/). Just remember that every lender assesses things a little differently.
+For a quick estimate, try our [borrowing calculator](/calculators/how-much-can-i-borrow/). Just remember that every lender assesses things a little differently.
 
 ## What you’ll need to apply
 

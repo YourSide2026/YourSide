@@ -1,0 +1,43 @@
+---
+import { tools, toolUrl } from '../../data/tools';
+interface Props { current?: string }
+const { current } = Astro.props;
+const others = tools.filter((t) => t.slug !== current);
+---
+
+<section class="section section--tint">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <span class="eyebrow">Keep going</span>
+        <h2>More calculators</h2>
+      </div>
+      <a class="btn btn--ghost" href="/calculators/">All calculators</a>
+    </div>
+    <p class="carry">Numbers you’ve entered carry across, so you won’t need to type them again.</p>
+    <div class="tools">
+      {others.map((t) => (
+        <a class="tool" href={toolUrl(t.slug)}>
+          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d={t.icon} fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          <span class="name">{t.title}</span>
+          <span class="blurb">{t.blurb}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .head { display: flex; justify-content: space-between; align-items: end; gap: 1rem; flex-wrap: wrap; }
+  .head h2 { margin: 0; }
+  .carry { color: var(--slate-muted); margin: 0.75rem 0 1.75rem; }
+  .tools { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+  .tool {
+    display: flex; flex-direction: column; gap: 0.4rem; padding: 1.4rem; background: #fff; text-decoration: none;
+    border: 1px solid var(--line); border-radius: var(--radius); transition: border-color 0.15s;
+  }
+  .tool:hover { border-color: var(--ultraviolet); }
+  .tool svg { color: var(--ultraviolet); margin-bottom: 0.4rem; }
+  .name { font-weight: 600; color: var(--purple); }
+  .blurb { font-size: 0.9rem; color: var(--slate-muted); }
+</style>

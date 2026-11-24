@@ -1,0 +1,3 @@
+# Netlify redirects (permanent moves keep any Google ranking)
+/borrowing-calculator/  /calculators/how-much-can-i-borrow/  301
+/borrowing-calculator   /calculators/how-much-can-i-borrow/  301

@@ -1,0 +1,189 @@
+---
+import CalcPage from '../../components/calc/CalcPage.astro';
+import { calculator } from '../../data/calculator';
+---
+
+<CalcPage
+  slug="how-much-can-i-borrow"
+  metaTitle="Borrowing calculator: how much can I borrow?"
+  description="How much can you borrow for a home in NZ? Estimate your borrowing power, deposit and repayments in under a minute, then get a Wellington mortgage adviser to check your numbers."
+  eyebrow="Borrowing calculator"
+  title="How much could you borrow?"
+  intro="Answer four quick questions for a rough idea of your borrowing power, deposit and repayments."
+  source="Borrowing calculator"
+  faqs={[
+    { q: 'How do banks work out how much I can borrow?', a: 'Lenders look at your income, living costs, existing debts and deposit. They also check you could still afford repayments if rates rose, using a higher “test rate”, and debt-to-income rules cap most borrowing at a multiple of your income.' },
+    { q: 'Why might a lender offer me more or less than this?', a: 'Every lender treats things like bonuses, self-employed income, rental income and living costs differently. That’s why the same person can get quite different answers from different banks, and why comparing lenders matters.' },
+    { q: 'Does using this calculator affect my credit score?', a: 'No. Nothing you enter here is a credit check, and your numbers stay in your browser unless you choose to send them to us.' },
+  ]}
+>
+  <form slot="inputs" class="card inputs" id="calc" novalidate data-config={JSON.stringify(calculator)}>
+    <fieldset class="field">
+      <legend>My goal is to:</legend>
+      <div class="choices">
+        <label><input type="radio" name="goal" value="first" checked /> <span>Buy my first home</span></label>
+        <label><input type="radio" name="goal" value="next" /> <span>Buy my next home</span></label>
+        <label><input type="radio" name="goal" value="investment" /> <span>Buy an investment property</span></label>
+        <label><input type="radio" name="goal" value="refinance" /> <span>Refinance a property</span></label>
+      </div>
+    </fieldset>
+
+    <div class="field">
+      <label for="price" data-label-price>What’s your target house price?</label>
+      <div class="money"><span>$</span><input id="price" type="text" inputmode="numeric" value="750,000" data-shared="price" /></div>
+    </div>
+
+    <div class="field">
+      <label for="deposit" data-label-deposit>How much deposit do you have?</label>
+      <div class="money"><span>$</span><input id="deposit" type="text" inputmode="numeric" value="150,000" data-shared="deposit" /></div>
+      <span class="hint" data-hint-deposit>Include savings, KiwiSaver you can withdraw and any gifted money.</span>
+    </div>
+
+    <div class="field">
+      <label for="income">What’s your annual income before tax?</label>
+      <div class="money"><span>$</span><input id="income" type="text" inputmode="numeric" value="140,000" data-shared="income" /></div>
+      <span class="hint">Add everyone who’ll be on the loan together.</span>
+    </div>
+
+    <details class="advanced">
+      <summary>Change the example interest rate</summary>
+      <div class="field">
+        <label for="rate">Interest rate for repayments (%)</label>
+        <input id="rate" type="number" step="0.01" min="0" max="20" value={(calculator.exampleRate * 100).toFixed(2)} data-shared="rate" />
+      </div>
+    </details>
+  </form>
+
+  <div slot="results" class="results dark" aria-live="polite">
+    <span class="eyebrow">Your estimate</span>
+    <p class="label">You could borrow up to around</p>
+    <p class="big" data-out="borrow">$0</p>
+
+    <dl>
+      <div><dt data-label-loan>Loan you’d need</dt><dd data-out="loan">$0</dd></div>
+      <div><dt data-label-depositpct>Your deposit</dt><dd data-out="depositPct">0%</dd></div>
+      <div><dt>Monthly repayments</dt><dd data-out="monthly">$0</dd></div>
+      <div><dt>Fortnightly repayments</dt><dd data-out="fortnightly">$0</dd></div>
+    </dl>
+
+    <p class="verdict" data-out="verdict"></p>
+    <a href="#check-my-numbers" class="btn btn--light" data-nudge-button>Get my numbers checked</a>
+  </div>
+
+  <Fragment slot="note">
+    This calculator gives a rough guide only and isn’t a loan offer or financial advice. It assumes a
+    {calculator.loanTermYears}-year loan, debt-to-income limits of {calculator.dti.ownerOccupier}× income
+    ({calculator.dti.investor}× for investment property), and that you could afford repayments at a
+    {(calculator.testRate * 100).toFixed(1)}% test rate. It doesn’t include living costs, other debts,
+    dependants or credit card limits, which all affect what a lender will offer.
+  </Fragment>
+</CalcPage>
+
+<script>
+  import {
+    $, money, parse, roundTo, repayment, maxLoanFor, formatMoneyInputs, prefill, saveShared,
+    setSummary, setNudge, trackUsage,
+  } from '../../scripts/calc';
+
+  type Config = {
+    dti: { ownerOccupier: number; investor: number };
+    minDeposit: { ownerOccupier: number; investor: number };
+    testRate: number;
+    maxRepaymentShare: number;
+    loanTermYears: number;
+  };
+
+  const form = $<HTMLFormElement>('#calc');
+  const cfg: Config = JSON.parse(form.dataset.config!);
+  const resultSeen = trackUsage(form, 'borrowing');
+
+  const labels = {
+    buy: { price: 'What’s your target house price?', deposit: 'How much deposit do you have?', loan: 'Loan you’d need', pct: 'Your deposit', hint: 'Include savings, KiwiSaver you can withdraw and any gifted money.' },
+    refinance: { price: 'What’s your property worth?', deposit: 'How much is left on your mortgage?', loan: 'Loan to refinance', pct: 'Your equity', hint: 'Your current loan balance, roughly.' },
+  };
+  const goalNames: Record<string, string> = { first: 'First home', next: 'Next home', investment: 'Investment property', refinance: 'Refinance' };
+
+  formatMoneyInputs(form);
+  prefill(form);
+
+  // Only remember numbers the visitor actually typed (not the example values)
+  function update(fromUser = false) {
+    const goal = form.querySelector<HTMLInputElement>('input[name="goal"]:checked')?.value ?? 'first';
+    const isRefi = goal === 'refinance';
+    const isInvestor = goal === 'investment';
+    const l = isRefi ? labels.refinance : labels.buy;
+
+    $('[data-label-price]').textContent = l.price;
+    $('[data-label-deposit]').textContent = l.deposit;
+    $('[data-label-loan]').textContent = l.loan;
+    $('[data-label-depositpct]').textContent = l.pct;
+    $('[data-hint-deposit]').textContent = l.hint;
+
+    const price = parse($<HTMLInputElement>('#price').value);
+    const second = parse($<HTMLInputElement>('#deposit').value); // deposit, or loan balance when refinancing
+    const income = parse($<HTMLInputElement>('#income').value);
+    const rate = (Number($<HTMLInputElement>('#rate').value) || 0) / 100;
+
+    const loan = Math.max(0, isRefi ? second : price - second);
+    const equity = isRefi ? price - second : second;
+    const depositPct = price > 0 ? equity / price : 0;
+
+    const dtiLimit = income * (isInvestor ? cfg.dti.investor : cfg.dti.ownerOccupier);
+    const serviceLimit = maxLoanFor((income / 12) * cfg.maxRepaymentShare, cfg.testRate, cfg.loanTermYears);
+    const borrow = roundTo(Math.max(0, Math.min(dtiLimit, serviceLimit)), 5000);
+    const monthly = repayment(loan, rate, cfg.loanTermYears);
+    const minDep = isInvestor ? cfg.minDeposit.investor : cfg.minDeposit.ownerOccupier;
+    const gap = loan - borrow;
+
+    $('[data-out="borrow"]').textContent = money(borrow);
+    $('[data-out="loan"]').textContent = money(loan);
+    $('[data-out="depositPct"]').textContent = `${Math.floor(depositPct * 100)}%`;
+    $('[data-out="monthly"]').textContent = money(monthly);
+    $('[data-out="fortnightly"]').textContent = money((monthly * 12) / 26);
+
+    // Result-specific message, shown in the panel and next to the enquiry form
+    let verdict: string;
+    if (!price || !income) {
+      verdict = 'Fill in the numbers above to see your estimate.';
+      setNudge({ title: 'Want an adviser to check your numbers?', text: 'Every lender assesses things a little differently. We’ll tell you what’s really possible.', button: 'Get my numbers checked' });
+    } else if (gap > 0) {
+      verdict = `You’re about ${money(roundTo(gap, 1000))} short on this rough estimate. Don’t throw in the towel: lenders assess income and costs differently.`;
+      setNudge({
+        title: `About ${money(roundTo(gap, 1000))} short? Let’s see what other lenders say.`,
+        text: 'Some lenders count bonuses, overtime, rental or self-employed income more generously than others. We’ll check which ones could get you there, at no cost to you.',
+        button: 'Check my options',
+      });
+    } else if (depositPct < minDep) {
+      verdict = isRefi
+        ? `You have less than ${minDep * 100}% equity, so some lenders may be more cautious. We know which ones are more flexible.`
+        : `Most lenders look for a ${minDep * 100}% deposit${isInvestor ? ' on investment property' : ''}. You have ${Math.floor(depositPct * 100)}%, and lower-deposit options may still be available.`;
+      setNudge({
+        title: isRefi ? 'Low equity? Some lenders are more flexible.' : `${Math.floor(depositPct * 100)}% deposit? You may still have options.`,
+        text: isRefi
+          ? 'We’ll compare which lenders will refinance at your equity level and what it would cost.'
+          : 'Lenders can make a limited number of low-deposit loans, and some schemes help eligible first home buyers. We’ll see if you qualify.',
+        button: 'See if I qualify',
+      });
+    } else {
+      verdict = 'Looks like this could be within reach. An adviser can confirm it and find the right lender for you.';
+      setNudge({
+        title: isRefi ? 'You’re in a strong position to refinance.' : 'You’re in a strong position. Let’s get you pre-approved.',
+        text: isRefi
+          ? 'We’ll compare rates and cash contributions across lenders and handle the switch for you.'
+          : 'Pre-approval tells sellers you’re serious and lets you move fast. We’ll find the right lender and handle the paperwork.',
+        button: isRefi ? 'Compare lenders for me' : 'Get me pre-approval ready',
+      });
+    }
+    $('[data-out="verdict"]').textContent = verdict;
+
+    setSummary(
+      `Borrowing calculator | Goal: ${goalNames[goal]} | ${isRefi ? 'Property value' : 'Price'}: ${money(price)} | ${isRefi ? 'Loan balance' : 'Deposit'}: ${money(second)} | Income: ${money(income)} | Estimate: ${money(borrow)} | Rate used: ${(rate * 100).toFixed(2)}%`,
+    );
+    if (fromUser) saveShared(isRefi ? { income, loan: second, rate: rate * 100 } : { price, deposit: second, income, loan, rate: rate * 100 });
+    if (price && income) resultSeen();
+  }
+
+  form.addEventListener('input', () => update(true));
+  form.addEventListener('change', () => update(true));
+  update();
+</script>

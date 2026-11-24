@@ -1,0 +1,54 @@
+/* Shared look for every calculator page: inputs card on the left, results panel on the right. */
+.calc { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; align-items: stretch; }
+@media (max-width: 860px) { .calc { grid-template-columns: 1fr; } }
+
+.calc fieldset { border: 0; padding: 0; margin: 0 0 1.25rem; }
+.calc legend { margin-bottom: 0.6rem; }
+.calc .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+@media (max-width: 480px) { .calc .row2 { grid-template-columns: 1fr; } }
+
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.choices--3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 480px) { .choices, .choices--3 { grid-template-columns: 1fr; } }
+.choices label { position: relative; cursor: pointer; }
+.choices input { position: absolute; opacity: 0; }
+.choices span {
+  display: block; padding: 0.8rem 1rem; border-radius: var(--radius-sm); text-align: left;
+  border: 1.5px solid #cfc4de; font-weight: 600; font-size: 0.95rem; color: var(--purple);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.choices label:hover span { border-color: var(--ultraviolet); }
+.choices input:checked + span { background: var(--ultraviolet); border-color: var(--ultraviolet); color: #fff; }
+.choices input:focus-visible + span { outline: 3px solid var(--ultraviolet); outline-offset: 2px; }
+
+.money, .suffix { position: relative; }
+.money > span { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--slate-muted); font-weight: 600; }
+.money input { padding-left: 1.8rem; font-size: 1.05rem; font-weight: 600; }
+.suffix > span { position: absolute; right: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--slate-muted); font-weight: 600; }
+.suffix input { padding-right: 2.6rem; font-size: 1.05rem; font-weight: 600; }
+
+.calc .advanced summary { cursor: pointer; color: var(--ultraviolet); font-weight: 600; font-size: 0.95rem; margin-bottom: 0.75rem; }
+
+.results {
+  display: flex; flex-direction: column; align-items: flex-start;
+  border-radius: var(--radius); padding: 2rem;
+  background:
+    linear-gradient(150deg, rgb(42 22 69 / 92%), rgb(58 31 94 / 85%)),
+    var(--purple) url('/brand/pattern-2.jpg') center / cover;
+}
+.results .label { margin: 0; opacity: 0.9; }
+.results .big { font: 600 clamp(2.3rem, 5vw, 3.1rem)/1.1 var(--font-title); letter-spacing: -0.02em; margin: 0.25rem 0 1.5rem; color: #fff; }
+.results dl { align-self: stretch; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0 0 1.5rem; padding: 1.25rem 0; border-block: 1px solid rgb(255 255 255 / 18%); }
+.results dt { font-size: 0.85rem; opacity: 0.85; }
+.results dd { margin: 0; font-weight: 600; font-size: 1.2rem; }
+.results .verdict { align-self: stretch; background: rgb(255 255 255 / 10%); border-radius: var(--radius-sm); padding: 1rem; font-size: 0.95rem; }
+.results .btn { margin-top: auto; }
+
+/* Simple horizontal bar used in a few results */
+.calc-bar { align-self: stretch; height: 12px; border-radius: 999px; background: rgb(255 255 255 / 15%); overflow: hidden; display: flex; margin: 0.25rem 0 0.5rem; }
+.calc-bar > span { display: block; height: 100%; transition: width 0.3s; }
+.legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; font-size: 0.85rem; opacity: 0.9; margin-bottom: 1.25rem; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 0.4rem; vertical-align: middle; }
+
+.calc-note { font-size: 0.85rem; color: var(--slate-muted); max-width: 820px; margin-top: 2rem; }
+.lead-wrap { margin-top: 1.5rem; }

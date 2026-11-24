@@ -1,0 +1,232 @@
+---
+// Quiz landing pages for paid social ads. No menu, one job: answer a few taps, see a
+// personalised result, leave details. Content lives in src/data/quizzes.ts.
+import Base from '../../layouts/Base.astro';
+import QuickEnquiry from '../../components/calc/QuickEnquiry.astro';
+import { quizzes, type Quiz } from '../../data/quizzes';
+import { advisers } from '../../data/advisers';
+
+export function getStaticPaths() {
+  return quizzes.map((quiz) => ({ params: { quiz: quiz.slug }, props: { quiz } }));
+}
+
+const { quiz } = Astro.props as { quiz: Quiz };
+const total = quiz.questions.length;
+---
+
+<Base title={quiz.metaTitle} description={quiz.description} minimal noindex>
+  <section class="lp">
+    <div class="wrap lp-grid">
+      <div class="lp-copy">
+        <span class="eyebrow">{quiz.eyebrow} · 60 seconds</span>
+        <h1>{quiz.headline}</h1>
+        <p class="sub">{quiz.subhead}</p>
+        <ul class="trust">
+          <li>Free, with no obligation</li>
+          <li>No credit check</li>
+          <li>Real advisers, based in Wellington</li>
+        </ul>
+        <p class="team">
+          <span class="faces" aria-hidden="true">{advisers.map((a) => <span>{a.name[0]}</span>)}</span>
+          From {advisers.map((a) => a.name).join(', ').replace(/, ([^,]*)$/, ' & $1')} at YourSide
+        </p>
+      </div>
+
+      <div class="quiz card" data-quiz data-bands={JSON.stringify(quiz.bands)} data-title={quiz.headline}>
+        <div class="progress" aria-hidden="true"><span data-progress></span></div>
+        <p class="step" data-step aria-live="polite">Question 1 of {total}</p>
+
+        <form data-questions>
+          {quiz.questions.map((q, qi) => (
+            <fieldset class="question" data-question={qi} data-id={q.id}>
+              <legend>{q.text}</legend>
+              {q.help && <p class="help">{q.help}</p>}
+              <div class="answers">
+                {q.answers.map((a, ai) => (
+                  <label>
+                    <input type="radio" name={q.id} value={ai} data-points={a.points} data-flag={a.flag ?? ''} data-label={a.label} />
+                    <span>{a.label}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </form>
+
+        <div class="nav" data-nav>
+          <button type="button" class="back" data-back hidden>← Back</button>
+        </div>
+
+        <div class="result" data-result hidden>
+          <span class="eyebrow">Your result</span>
+          <h2 data-result-title tabindex="-1"></h2>
+          <p data-result-text></p>
+          <div data-flags-wrap hidden>
+            <p class="flags-title">{quiz.resultIntro}</p>
+            <ul class="flags" data-flags></ul>
+          </div>
+          <p class="send">Where should we send your personalised next steps?</p>
+        </div>
+
+        <div class="form-wrap" data-form-wrap>
+          <noscript><p class="help">Leave your details and an adviser will be in touch.</p></noscript>
+          <QuickEnquiry id={`qe-${quiz.slug}`} source={`Quiz: ${quiz.eyebrow}`} button={quiz.bands[0].button} />
+          <button type="button" class="back restart" data-restart hidden>Start again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section why">
+    <div class="wrap">
+      <div class="reasons">
+        <div><h2>We work for you, not the bank</h2><p>We compare lenders to find the right fit, and New Zealand law requires advisers to put your interests first.</p></div>
+        <div><h2>No cost to you</h2><p>Lenders pay us when your loan settles, so for most people our advice costs nothing. We’ll always tell you upfront if a fee could apply.</p></div>
+        <div><h2>With you all the way</h2><p>From your first question to settlement day and beyond, you’ll deal with the same adviser.</p></div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { setSummary, setNudge, track } from '../../scripts/calc';
+
+  type Band = { min: number; title: string; text: string; button: string };
+  const root = document.querySelector<HTMLElement>('[data-quiz]')!;
+  const bands: Band[] = JSON.parse(root.dataset.bands!);
+  const quizName = root.dataset.title!;
+  const questions = [...root.querySelectorAll<HTMLFieldSetElement>('[data-question]')];
+  const step = root.querySelector<HTMLElement>('[data-step]')!;
+  const bar = root.querySelector<HTMLElement>('[data-progress]')!;
+  const back = root.querySelector<HTMLButtonElement>('[data-back]')!;
+  const result = root.querySelector<HTMLElement>('[data-result]')!;
+  const formWrap = root.querySelector<HTMLElement>('[data-form-wrap]')!;
+  const restart = root.querySelector<HTMLButtonElement>('[data-restart]')!;
+  let current = 0;
+  let started = false;
+
+  root.classList.add('js');
+  formWrap.hidden = true;
+
+  function show(i: number) {
+    current = i;
+    questions.forEach((q, qi) => (q.hidden = qi !== i));
+    step.textContent = `Question ${i + 1} of ${questions.length}`;
+    bar.style.width = `${(i / questions.length) * 100}%`;
+    back.hidden = i === 0;
+    questions[i].querySelector<HTMLInputElement>('input:checked, input')?.focus({ preventScroll: true });
+  }
+
+  function finish() {
+    const picked = questions.map((q) => q.querySelector<HTMLInputElement>('input:checked')!);
+    const score = picked.reduce((s, a) => s + Number(a.dataset.points), 0);
+    const band = bands.find((b) => score >= b.min) ?? bands[bands.length - 1];
+    const flags = picked.map((a) => a.dataset.flag).filter(Boolean) as string[];
+
+    questions.forEach((q) => (q.hidden = true));
+    step.textContent = 'Done!';
+    bar.style.width = '100%';
+    back.hidden = true;
+    result.hidden = false;
+    formWrap.hidden = false;
+    restart.hidden = false;
+
+    result.querySelector('[data-result-title]')!.textContent = band.title;
+    result.querySelector('[data-result-text]')!.textContent = band.text;
+    const list = result.querySelector('[data-flags]')!;
+    list.innerHTML = '';
+    flags.slice(0, 4).forEach((f) => {
+      const li = document.createElement('li');
+      li.textContent = f;
+      list.appendChild(li);
+    });
+    result.querySelector<HTMLElement>('[data-flags-wrap]')!.hidden = flags.length === 0;
+    setNudge({ title: band.title, text: band.text, button: band.button });
+    document.querySelectorAll('[data-nudge-button]').forEach((b) => (b.textContent = band.button));
+
+    const answers = questions.map((q, i) => `${q.querySelector('legend')!.textContent} ${picked[i].dataset.label}`).join(' | ');
+    setSummary(`${quizName} | Result: ${band.title} (score ${score}) | ${answers}`);
+    track('quiz_complete', { quiz: quizName, band: band.title });
+    result.querySelector<HTMLElement>('[data-result-title]')!.focus();
+  }
+
+  questions.forEach((q, qi) => {
+    q.addEventListener('change', () => {
+      if (!started) track('quiz_start', { quiz: quizName });
+      started = true;
+      // Short pause so people see their tap register before moving on
+      setTimeout(() => (qi < questions.length - 1 ? show(qi + 1) : finish()), 220);
+    });
+  });
+  back.addEventListener('click', () => show(Math.max(0, current - 1)));
+  restart.addEventListener('click', () => {
+    root.querySelectorAll<HTMLInputElement>('[data-questions] input').forEach((i) => (i.checked = false));
+    result.hidden = true;
+    formWrap.hidden = true;
+    restart.hidden = true;
+    show(0);
+  });
+
+  show(0);
+</script>
+
+<style>
+  .lp {
+    background:
+      radial-gradient(60% 80% at 85% 10%, rgb(144 65 246 / 45%), transparent 60%),
+      linear-gradient(135deg, var(--purple-dark), var(--purple) 60%, #4a2878);
+    color: #fff; padding-block: clamp(2rem, 6vw, 4.5rem);
+  }
+  .lp-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+  .lp .eyebrow { color: var(--uv-light); }
+  .lp h1 { color: #fff; font-size: clamp(2.1rem, 4.6vw, 3.3rem); }
+  .sub { font-size: 1.15rem; color: rgb(255 255 255 / 85%); max-width: 30rem; }
+  .trust { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 0.5rem; }
+  .trust li::before { content: '✓'; color: var(--uv-light); font-weight: 700; margin-right: 0.6rem; }
+  .team { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: rgb(255 255 255 / 75%); }
+  .faces { display: flex; }
+  .faces span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--ultraviolet); border: 2px solid var(--purple); font-weight: 600; font-size: 0.85rem; color: #fff; }
+  .faces span + span { margin-left: -9px; }
+
+  .quiz { color: var(--slate); padding: clamp(1.5rem, 4vw, 2.25rem); box-shadow: 0 30px 60px rgb(20 8 38 / 35%); }
+  .progress { height: 6px; background: var(--uv-50); border-radius: 999px; overflow: hidden; }
+  .progress span { display: block; height: 100%; width: 0; background: var(--ultraviolet); transition: width 0.3s; }
+  .step { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate-muted); margin: 0.9rem 0 0.5rem; }
+  .question { border: 0; padding: 0; margin: 0 0 1.5rem; }
+  .question legend { font: 600 clamp(1.25rem, 2.6vw, 1.5rem)/1.25 var(--font-title); color: var(--purple); margin-bottom: 0.4rem; letter-spacing: -0.01em; }
+  .help { color: var(--slate-muted); font-size: 0.92rem; margin: 0 0 0.5rem; }
+  .answers { display: grid; gap: 0.6rem; margin-top: 1rem; }
+  .answers label { position: relative; cursor: pointer; }
+  .answers input { position: absolute; opacity: 0; }
+  .answers span {
+    display: flex; align-items: center; justify-content: space-between; padding: 0.95rem 1.1rem; border-radius: var(--radius-sm);
+    border: 1.5px solid #d6cfe0; font-weight: 600; color: var(--purple); transition: border-color 0.15s, background 0.15s;
+  }
+  .answers span::after { content: '→'; color: var(--ultraviolet); opacity: 0; transition: opacity 0.15s; }
+  .answers label:hover span { border-color: var(--ultraviolet); }
+  .answers label:hover span::after { opacity: 1; }
+  .answers input:checked + span { background: var(--ultraviolet); border-color: var(--ultraviolet); color: #fff; }
+  .answers input:checked + span::after { color: #fff; opacity: 1; }
+  .answers input:focus-visible + span { outline: 3px solid var(--ultraviolet); outline-offset: 2px; }
+  /* Without JavaScript every question shows as one form */
+  .quiz:not(.js) .step, .quiz:not(.js) .progress { display: none; }
+
+  .back { background: none; border: 0; padding: 0.25rem 0; font: 600 0.95rem var(--font-body); color: var(--slate-muted); cursor: pointer; }
+  .back:hover { color: var(--ultraviolet); }
+  .restart { margin-top: 1rem; }
+
+  .result h2 { font-size: clamp(1.5rem, 3vw, 1.9rem); outline: none; }
+  .result p { color: var(--slate-muted); }
+  .flags-title { font-weight: 600; color: var(--purple) !important; margin-bottom: 0.4rem; }
+  .flags { margin: 0 0 1.25rem; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+  .flags li::marker { color: var(--ultraviolet); }
+  .send { font-weight: 600; color: var(--purple) !important; border-top: 1px solid var(--line); padding-top: 1.25rem; }
+
+  .why .reasons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  .why h2 { font-size: 1.2rem; }
+  .why p { color: var(--slate-muted); margin: 0; }
+  @media (max-width: 860px) {
+    .lp-grid, .why .reasons { grid-template-columns: 1fr; }
+    .lp-copy .trust, .lp-copy .team { display: none; }
+  }
+</style>

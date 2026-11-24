@@ -1,6 +1,7 @@
 ---
 import { nav } from '../data/site';
 import Logo from './Logo.astro';
+const { minimal = false } = Astro.props as { minimal?: boolean };
 const path = Astro.url.pathname;
 // Highlight a menu item on its own page and any pages beneath it (e.g. every guide)
 const isCurrent = (href: string) => (href.includes('#') ? false : path === href || (href !== '/' && path.startsWith(href)));
@@ -12,6 +13,9 @@ const isCurrent = (href: string) => (href.includes('#') ? false : path === href 
       <Logo height={30} />
     </a>
 
+    {minimal ? (
+      <p class="reassure">Free advice · Wellington mortgage advisers</p>
+    ) : (<Fragment>
     <!-- Desktop menu -->
     <nav class="desktop" aria-label="Main">
       <ul>
@@ -37,6 +41,7 @@ const isCurrent = (href: string) => (href.includes('#') ? false : path === href 
         <a href="/contact/" class="btn">Talk to an adviser</a>
       </nav>
     </details>
+    </Fragment>)}
   </div>
 </header>
 
@@ -58,6 +63,8 @@ const isCurrent = (href: string) => (href.includes('#') ? false : path === href 
   .desktop ul { display: flex; gap: 1.75rem; }
   .desktop .btn { padding: 0.65rem 1.2rem; font-size: 0.95rem; }
   .mobile { display: none; }
+  .reassure { margin: 0; font-size: 0.9rem; color: var(--slate-muted); }
+  @media (max-width: 560px) { .reassure { display: none; } }
 
   @media (max-width: 1080px) {
     .desktop { display: none; }

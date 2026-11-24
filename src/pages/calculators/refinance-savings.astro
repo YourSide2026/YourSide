@@ -1,0 +1,171 @@
+---
+import CalcPage from '../../components/calc/CalcPage.astro';
+---
+
+<CalcPage
+  slug="refinance-savings"
+  metaTitle="Refinance calculator NZ: should I switch lenders?"
+  description="Could switching lenders save you money? Compare your current mortgage rate with a new one, including cash contributions, break fees and switching costs. Free NZ refinance calculator."
+  eyebrow="Refinance calculator"
+  title="Should I switch lenders?"
+  intro="Compare your current rate with a new one, including any cash contribution, break fee and switching costs."
+  source="Refinance calculator"
+  button="Compare lenders for me"
+  faqs={[
+    { q: 'What is a break fee?', a: 'If you repay or switch a fixed-rate loan before the fixed term ends, your lender may charge a break fee to cover its costs. It depends on how much you owe, how long is left and how rates have moved. Your lender can tell you the exact amount.' },
+    { q: 'What is a cash contribution?', a: 'Some lenders pay a cash contribution when you move your loan to them. It usually has to be repaid, in full or in part, if you leave within a set time, so the conditions matter as much as the amount.' },
+    { q: 'When is the best time to refinance?', a: 'Often when a fixed term is ending, because there’s usually no break fee. It’s also worth reviewing when your income, property value or plans change.' },
+  ]}
+>
+  <form slot="inputs" class="card inputs" id="calc" novalidate>
+    <div class="row2">
+      <div class="field">
+        <label for="loan">Loan balance</label>
+        <div class="money"><span>$</span><input id="loan" type="text" inputmode="numeric" value="550,000" data-shared="loan" /></div>
+      </div>
+      <div class="field">
+        <label for="years">Years left on loan</label>
+        <div class="suffix"><input id="years" type="number" min="1" max="40" step="1" value="25" /><span>yrs</span></div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label for="current">Your current rate</label>
+        <div class="suffix"><input id="current" type="number" min="0" max="20" step="0.01" value="6.00" /><span>%</span></div>
+      </div>
+      <div class="field">
+        <label for="new">New rate you’ve seen</label>
+        <div class="suffix"><input id="new" type="number" min="0" max="20" step="0.01" value="5.40" /><span>%</span></div>
+      </div>
+    </div>
+
+    <fieldset class="field">
+      <legend>Compare over</legend>
+      <div class="choices choices--3">
+        <label><input type="radio" name="period" value="12" /> <span>1 year</span></label>
+        <label><input type="radio" name="period" value="24" checked /> <span>2 years</span></label>
+        <label><input type="radio" name="period" value="36" /> <span>3 years</span></label>
+      </div>
+    </fieldset>
+
+    <div class="row2">
+      <div class="field">
+        <label for="cash">Cash contribution offered</label>
+        <div class="money"><span>$</span><input id="cash" type="text" inputmode="numeric" value="" placeholder="0" /></div>
+      </div>
+      <div class="field">
+        <label for="breakfee">Break fee (if fixed)</label>
+        <div class="money"><span>$</span><input id="breakfee" type="text" inputmode="numeric" value="" placeholder="0" /></div>
+      </div>
+    </div>
+    <div class="field">
+      <label for="costs">Switching costs</label>
+      <div class="money"><span>$</span><input id="costs" type="text" inputmode="numeric" value="1,000" /></div>
+      <span class="hint">Legal and discharge fees. An estimate, so check with your lawyer.</span>
+    </div>
+  </form>
+
+  <div slot="results" class="results dark" aria-live="polite">
+    <span class="eyebrow">Your estimate</span>
+    <p class="label" data-out="headline">Switching could save you</p>
+    <p class="big" data-out="net">$0</p>
+
+    <dl>
+      <div><dt>Repayments now</dt><dd data-out="nowPay">$0/mth</dd></div>
+      <div><dt>Repayments after</dt><dd data-out="newPay">$0/mth</dd></div>
+      <div><dt>Interest saved</dt><dd data-out="interest">$0</dd></div>
+      <div><dt>Costs paid back in</dt><dd data-out="breakeven">–</dd></div>
+    </dl>
+
+    <p class="verdict" data-out="verdict"></p>
+    <a href="#check-my-numbers" class="btn btn--light" data-nudge-button>Compare lenders for me</a>
+  </div>
+
+  <Fragment slot="note">
+    A rough guide only, not financial advice. Assumes a principal-and-interest loan, the same rates for the whole
+    comparison period and the same loan term after switching. Cash contributions usually have to be repaid if you
+    leave the lender within a set time. Ask your lender for your exact break fee.
+  </Fragment>
+</CalcPage>
+
+<script>
+  import { $, money, parse, repayment, formatMoneyInputs, prefill, saveShared, setSummary, setNudge, trackUsage } from '../../scripts/calc';
+
+  const form = $<HTMLFormElement>('#calc');
+  const resultSeen = trackUsage(form, 'refinance');
+  formatMoneyInputs(form);
+  prefill(form);
+
+  /** Month-by-month interest on a table loan, as a running total. */
+  function cumulativeInterest(loan: number, rate: number, years: number, months: number) {
+    const pay = repayment(loan, rate, years);
+    const r = rate / 12;
+    const out: number[] = [];
+    let bal = loan, total = 0;
+    for (let i = 0; i < months; i++) {
+      const int = bal * r;
+      total += int;
+      bal -= pay - int;
+      out.push(total);
+    }
+    return out;
+  }
+
+  function update(fromUser = false) {
+    const loan = parse($<HTMLInputElement>('#loan').value);
+    const years = Math.max(1, Number($<HTMLInputElement>('#years').value) || 25);
+    const cur = (Number($<HTMLInputElement>('#current').value) || 0) / 100;
+    const neu = (Number($<HTMLInputElement>('#new').value) || 0) / 100;
+    const months = Number(form.querySelector<HTMLInputElement>('input[name="period"]:checked')!.value);
+    const cash = parse($<HTMLInputElement>('#cash').value);
+    const breakFee = parse($<HTMLInputElement>('#breakfee').value);
+    const costs = parse($<HTMLInputElement>('#costs').value);
+
+    const nowPay = repayment(loan, cur, years);
+    const newPay = repayment(loan, neu, years);
+    const horizon = Math.max(months, 120);
+    const a = cumulativeInterest(loan, cur, years, horizon);
+    const b = cumulativeInterest(loan, neu, years, horizon);
+    const interestSaved = a[months - 1] - b[months - 1];
+    const upfront = breakFee + costs - cash;
+    const net = interestSaved - upfront;
+
+    let breakeven = upfront <= 0 ? 0 : -1;
+    if (upfront > 0) for (let i = 0; i < horizon; i++) if (a[i] - b[i] >= upfront) { breakeven = i + 1; break; }
+
+    const yrs = months / 12;
+    $('[data-out="headline"]').textContent = net >= 0 ? `Switching could save you over ${yrs} year${yrs > 1 ? 's' : ''}` : `Switching could cost you over ${yrs} year${yrs > 1 ? 's' : ''}`;
+    $('[data-out="net"]').textContent = money(Math.abs(net));
+    $('[data-out="nowPay"]').textContent = `${money(nowPay)}/mth`;
+    $('[data-out="newPay"]').textContent = `${money(newPay)}/mth`;
+    $('[data-out="interest"]').textContent = money(interestSaved);
+    $('[data-out="breakeven"]').textContent = breakeven === 0 ? 'Straight away' : breakeven > 0 ? `${breakeven} months` : 'Over 10 years';
+
+    if (!loan) {
+      $('[data-out="verdict"]').textContent = 'Add your loan balance to compare.';
+    } else if (net > 0) {
+      $('[data-out="verdict"]').textContent = `On these numbers you’d be about ${money(net)} better off over ${yrs} year${yrs > 1 ? 's' : ''}, and about ${money(nowPay - newPay)} a month lighter on repayments.`;
+      setNudge({
+        title: `Switching could save about ${money(net)}. Let’s make it happen.`,
+        text: 'We’ll compare rates and cash contributions across lenders, check the conditions, and handle the switch for you, including the paperwork with your lawyer.',
+        button: 'Compare lenders for me',
+      });
+    } else {
+      $('[data-out="verdict"]').textContent = 'On these numbers switching may not pay off yet. Your current lender may sharpen its rate to keep you, and timing a switch for when your fixed term ends often avoids a break fee.';
+      setNudge({
+        title: 'Not worth switching? Your lender may still do better.',
+        text: 'We can negotiate with your current lender, compare offers elsewhere, and work out the best time to switch so you avoid break fees.',
+        button: 'Get a free review',
+      });
+    }
+
+    setSummary(`Refinance calculator | Balance: ${money(loan)} | ${years} yrs left | Current: ${(cur * 100).toFixed(2)}% | New: ${(neu * 100).toFixed(2)}% | Cash contribution: ${money(cash)} | Break fee: ${money(breakFee)} | Costs: ${money(costs)} | Net over ${yrs} yr: ${net >= 0 ? '' : '-'}${money(Math.abs(net))}`);
+    if (fromUser) saveShared({ loan, rate: neu * 100 });
+    if (loan) resultSeen();
+  }
+
+  form.addEventListener('input', () => update(true));
+  form.addEventListener('change', () => update(true));
+  update();
+</script>

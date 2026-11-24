@@ -1,0 +1,135 @@
+---
+import CalcPage from '../../components/calc/CalcPage.astro';
+
+// Typical Wellington estimates. Ask the advisers to check these from time to time.
+const costs = [
+  { id: 'legal', label: 'Legal / conveyancing', value: 2000, hint: 'Varies by lawyer and how complex the purchase is.' },
+  { id: 'inspection', label: 'Building inspection', value: 650, hint: 'Strongly recommended before you commit.' },
+  { id: 'lim', label: 'LIM report', value: 400, hint: 'From the council. Shows consents, zoning and known issues.' },
+  { id: 'valuation', label: 'Registered valuation', value: 900, hint: 'Often needed with a low deposit or for auctions.' },
+  { id: 'moving', label: 'Moving costs', value: 1500, hint: 'Movers, cleaning, connecting power and internet.' },
+  { id: 'other', label: 'Other (furniture, repairs, buffer)', value: 0, hint: '' },
+];
+---
+
+<CalcPage
+  slug="upfront-costs"
+  metaTitle="Home buying costs calculator NZ"
+  description="How much cash do you need to buy a house in NZ? Add your deposit, legal fees, building inspection, LIM, valuation and moving costs to see the real total. Free calculator."
+  eyebrow="Buying costs calculator"
+  title="How much cash do I need to buy?"
+  intro="Your deposit is only part of it. Add the other costs of buying to see the real cash you need on the day."
+  source="Buying costs calculator"
+  leadTitle="Want help covering your buying costs?"
+  leadText="Some lenders offer a cash contribution when you take out a new home loan, which can help with costs like these. We’ll compare what’s on offer."
+  button="Compare lender offers"
+  faqs={[
+    { q: 'Is there stamp duty in New Zealand?', a: 'No. New Zealand doesn’t charge stamp duty on property purchases, which keeps upfront costs lower than in many countries.' },
+    { q: 'Do I need a building inspection and LIM?', a: 'They’re not legally required, but they’re strongly recommended. They can uncover problems before you’re committed, and many purchase agreements are made conditional on them.' },
+    { q: 'Can a lender help with these costs?', a: 'Some lenders offer a cash contribution when your new loan settles. It usually has conditions, such as staying with the lender for a set time, so it’s worth comparing offers.' },
+  ]}
+>
+  <form slot="inputs" class="card inputs" id="calc" novalidate>
+    <div class="row2">
+      <div class="field">
+        <label for="price">Purchase price</label>
+        <div class="money"><span>$</span><input id="price" type="text" inputmode="numeric" value="750,000" data-shared="price" /></div>
+      </div>
+      <div class="field">
+        <label for="deposit">Your deposit</label>
+        <div class="money"><span>$</span><input id="deposit" type="text" inputmode="numeric" value="150,000" data-shared="deposit" /></div>
+      </div>
+    </div>
+
+    <fieldset class="field costs">
+      <legend>Other costs <span class="hint">(typical estimates, change them to match your quotes)</span></legend>
+      {costs.map((c) => (
+        <div class="cost">
+          <label for={c.id}>{c.label}{c.hint && <span class="hint">{c.hint}</span>}</label>
+          <div class="money"><span>$</span><input id={c.id} type="text" inputmode="numeric" value={c.value ? c.value.toLocaleString('en-NZ') : ''} placeholder="0" data-cost={c.label} /></div>
+        </div>
+      ))}
+    </fieldset>
+  </form>
+
+  <div slot="results" class="results dark" aria-live="polite">
+    <span class="eyebrow">Cash you’ll need</span>
+    <p class="label">Total upfront, including your deposit</p>
+    <p class="big" data-out="total">$0</p>
+
+    <div class="calc-bar" aria-hidden="true"><span data-bar="deposit" style="background:#fff"></span><span data-bar="costs" style="background:var(--ultraviolet)"></span></div>
+    <p class="legend"><span><i style="background:#fff"></i>Deposit</span><span><i style="background:var(--ultraviolet)"></i>Other costs</span></p>
+
+    <dl>
+      <div><dt>Deposit</dt><dd data-out="deposit">$0</dd></div>
+      <div><dt>Other costs</dt><dd data-out="costs">$0</dd></div>
+      <div><dt>Loan you’d need</dt><dd data-out="loan">$0</dd></div>
+      <div><dt>Deposit %</dt><dd data-out="pct">0%</dd></div>
+    </dl>
+
+    <p class="verdict" data-out="verdict"></p>
+    <a href="#check-my-numbers" class="btn btn--light" data-nudge-button>Compare lender offers</a>
+  </div>
+
+  <Fragment slot="note">
+    A rough guide only, not financial advice. Costs are typical estimates and vary by property, provider and lender.
+    Some lenders also charge fees, for example on low-deposit loans. Get quotes before you commit.
+  </Fragment>
+</CalcPage>
+
+<script>
+  import { $, money, parse, formatMoneyInputs, prefill, saveShared, setSummary, setNudge, trackUsage } from '../../scripts/calc';
+
+  const form = $<HTMLFormElement>('#calc');
+  const resultSeen = trackUsage(form, 'upfront-costs');
+  formatMoneyInputs(form);
+  prefill(form);
+
+  function update(fromUser = false) {
+    const price = parse($<HTMLInputElement>('#price').value);
+    const deposit = parse($<HTMLInputElement>('#deposit').value);
+    const items = [...form.querySelectorAll<HTMLInputElement>('[data-cost]')].map((i) => ({ label: i.dataset.cost!, value: parse(i.value) }));
+    const costs = items.reduce((s, i) => s + i.value, 0);
+    const total = deposit + costs;
+    const loan = Math.max(0, price - deposit);
+    const pct = price > 0 ? deposit / price : 0;
+
+    $('[data-out="total"]').textContent = money(total);
+    $('[data-out="deposit"]').textContent = money(deposit);
+    $('[data-out="costs"]').textContent = money(costs);
+    $('[data-out="loan"]').textContent = money(loan);
+    $('[data-out="pct"]').textContent = `${Math.round(pct * 100)}%`;
+    const share = total > 0 ? (deposit / total) * 100 : 100;
+    $('[data-bar="deposit"]').style.width = `${share}%`;
+    $('[data-bar="costs"]').style.width = `${100 - share}%`;
+
+    $('[data-out="verdict"]').textContent = costs > 0
+      ? `On top of your deposit, budget about ${money(costs)} for the costs of buying. Keep a buffer for surprises too.`
+      : 'Add your expected costs to see the full picture.';
+
+    if (costs > 0) {
+      setNudge({
+        title: `${money(costs)} in buying costs? A lender may help.`,
+        text: 'Some lenders offer a cash contribution when you take out a new home loan, which can help with costs like these. We’ll compare what’s on offer and what conditions apply.',
+        button: 'Compare lender offers',
+      });
+    }
+
+    setSummary(`Buying costs calculator | Price: ${money(price)} | Deposit: ${money(deposit)} (${Math.round(pct * 100)}%) | Costs: ${items.filter((i) => i.value).map((i) => `${i.label} ${money(i.value)}`).join(', ')} | Total cash needed: ${money(total)}`);
+    if (fromUser) saveShared({ price, deposit, loan });
+    if (price) resultSeen();
+  }
+
+  form.addEventListener('input', () => update(true));
+  form.addEventListener('change', () => update(true));
+  update();
+</script>
+
+<style>
+  .costs legend .hint { font-weight: 400; display: block; margin-top: 0.2rem; }
+  .cost { display: grid; grid-template-columns: 1fr 160px; gap: 0.75rem; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--line); }
+  .cost:last-child { border-bottom: 0; }
+  .cost label { font-weight: 600; font-size: 0.95rem; color: var(--purple); display: grid; gap: 0.15rem; }
+  .cost .hint { font-weight: 400; font-size: 0.82rem; color: var(--slate-muted); }
+  @media (max-width: 480px) { .cost { grid-template-columns: 1fr; } }
+</style>

@@ -11,9 +11,11 @@ interface Props {
   image?: string;
   type?: 'website' | 'article';
   noindex?: boolean;
+  /** Landing pages for ads: logo-only header and a slim footer, so the page has one job */
+  minimal?: boolean;
 }
 
-const { title, description = site.description, image = '/og-image.jpg', type = 'website', noindex = false } = Astro.props;
+const { title, description = site.description, image = '/og-image.jpg', type = 'website', noindex = false, minimal = false } = Astro.props;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | ${site.tagline}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
 const ogImage = new URL(image, site.url).href;
@@ -47,11 +49,11 @@ const ogImage = new URL(image, site.url).href;
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <Header />
+    <Header minimal={minimal} />
     <main id="main">
       <slot />
     </main>
-    <Footer />
+    <Footer minimal={minimal} />
   </body>
 </html>
 

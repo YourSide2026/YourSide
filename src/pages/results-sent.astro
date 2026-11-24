@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+---
+
+<Base title="Your results are on their way" noindex>
+  <PageHero
+    eyebrow="Results requested"
+    title="Thanks, your results are on their way."
+    intro="One of our advisers will email you a copy of your numbers, usually within one working day. Questions in the meantime? Just reply to that email."
+  >
+    <p class="back">
+      <a href="/calculators/" class="btn btn--light">Try another calculator</a>
+      <a href="/guides/" class="btn btn--outline-light">Read our guides</a>
+    </p>
+  </PageHero>
+</Base>
+
+<style>
+  .back { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+</style>

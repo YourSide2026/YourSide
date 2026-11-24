@@ -19,7 +19,7 @@ export const site = {
 
 export const nav = [
   { label: 'Home loans', href: '/#services' },
-  { label: 'Borrowing calculator', href: '/borrowing-calculator/' },
+  { label: 'Calculators', href: '/calculators/' },
   { label: 'Interest rates', href: '/interest-rates/' },
   { label: 'Our team', href: '/team/' },
   { label: 'Guides', href: '/guides/' },

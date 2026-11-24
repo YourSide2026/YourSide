@@ -1,0 +1,96 @@
+---
+// Short enquiry form used under calculator results and on quiz landing pages.
+// Netlify Forms name: "quick-enquiry". Every copy must keep exactly these fields.
+interface Props {
+  id: string;
+  source: string;
+  button?: string;
+  dark?: boolean;
+}
+const { id, source, button = 'Get my numbers checked', dark = false } = Astro.props;
+---
+
+<form
+  id={id}
+  class:list={['quick', { 'quick--dark': dark }]}
+  name="quick-enquiry"
+  method="POST"
+  action="/thank-you/"
+  data-netlify="true"
+  netlify-honeypot="bot-field"
+  data-quick-enquiry
+  novalidate
+>
+  <input type="hidden" name="form-name" value="quick-enquiry" />
+  <input type="hidden" name="source" value={source} />
+  <input type="hidden" name="calculator_summary" value="" data-calc-summary />
+  <p class="visually-hidden"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+
+  <div class="field">
+    <label for={`${id}-name`}>First name</label>
+    <input id={`${id}-name`} type="text" name="name" autocomplete="given-name" required />
+  </div>
+  <div class="two">
+    <div class="field">
+      <label for={`${id}-phone`}>Phone</label>
+      <input id={`${id}-phone`} type="tel" name="phone" autocomplete="tel" />
+    </div>
+    <div class="field">
+      <label for={`${id}-email`}>Email</label>
+      <input id={`${id}-email`} type="email" name="email" autocomplete="email" />
+    </div>
+  </div>
+  <p class="hint either">Phone or email, whichever you prefer.</p>
+  <div class="field">
+    <label for={`${id}-time`}>Best time to reach you</label>
+    <select id={`${id}-time`} name="best_time">
+      <option>Any time</option>
+      <option>Morning</option>
+      <option>Afternoon</option>
+      <option>Evening</option>
+    </select>
+  </div>
+  <label class="checkbox">
+    <input type="checkbox" name="consent" value="yes" required />
+    <span>I agree to YourSide contacting me about my enquiry, as set out in the <a href="/privacy/">privacy policy</a>.</span>
+  </label>
+  <p class="error" role="alert" data-error hidden></p>
+  <button class="btn submit" type="submit" data-nudge-button>{button}</button>
+</form>
+
+<script>
+  import { track } from '../../scripts/calc';
+
+  document.querySelectorAll<HTMLFormElement>('[data-quick-enquiry]').forEach((form) => {
+    const error = form.querySelector<HTMLElement>('[data-error]')!;
+    form.addEventListener('submit', (e) => {
+      const get = (n: string) => (form.elements.namedItem(n) as HTMLInputElement);
+      const problems: string[] = [];
+      if (!get('name').value.trim()) problems.push('your first name');
+      if (!get('phone').value.trim() && !get('email').value.trim()) problems.push('a phone number or email');
+      else if (get('email').value.trim() && !get('email').checkValidity()) problems.push('a valid email');
+      if (!get('consent').checked) problems.push('your OK for us to contact you');
+      if (problems.length) {
+        e.preventDefault();
+        error.textContent = `Please add ${problems.join(', ')}.`;
+        error.hidden = false;
+        return;
+      }
+      track('lead_submitted', { form: 'quick-enquiry', source: (get('source') as HTMLInputElement).value });
+    });
+  });
+</script>
+
+<style>
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .two .field { margin-bottom: 0.25rem; }
+  .either { font-size: 0.82rem; color: var(--slate-muted); margin: 0 0 1rem; }
+  .checkbox { margin: 0.25rem 0 1rem; }
+  .submit { width: 100%; }
+  .error { background: #fdecef; color: #8a1630; border-radius: var(--radius-sm); padding: 0.6rem 0.8rem; font-size: 0.9rem; }
+  @media (max-width: 480px) { .two { grid-template-columns: 1fr; } }
+
+  .quick--dark :global(label), .quick--dark .checkbox { color: #fff; }
+  .quick--dark .either { color: rgb(255 255 255 / 70%); }
+  .quick--dark a { color: var(--uv-light); }
+</style>

@@ -1,0 +1,160 @@
+---
+import CalcPage from '../../components/calc/CalcPage.astro';
+---
+
+<CalcPage
+  slug="deposit-kiwisaver"
+  metaTitle="Deposit & KiwiSaver first home calculator"
+  description="How close are you to a house deposit? Add your savings and KiwiSaver to see your deposit today and how long until you reach 5%, 10% or 20%. Free NZ first home calculator."
+  eyebrow="Deposit & KiwiSaver calculator"
+  title="How close am I to a deposit?"
+  intro="Add up your savings and KiwiSaver to see your deposit today, and how long until you reach 5%, 10% or 20%."
+  source="Deposit & KiwiSaver calculator"
+  button="Show me my options"
+  faqs={[
+    { q: 'How much of my KiwiSaver can I use for my first home?', a: 'If you’ve been a KiwiSaver member for at least three years, you can usually withdraw everything except $1,000 to put towards buying your first home. Your provider will confirm the exact amount and the paperwork needed.' },
+    { q: 'Do I really need a 20% deposit?', a: 'Most lenders look for 20% on an owner-occupied home, but they can make a limited number of loans to buyers with less. Some schemes also help eligible first home buyers buy with as little as 5%. Extra criteria and costs can apply.' },
+    { q: 'Can family help with my deposit?', a: 'Yes. Gifted money is common, and lenders usually ask for a signed gift letter. Some families help by guaranteeing part of the loan instead. An adviser can explain how each option works.' },
+  ]}
+>
+  <form slot="inputs" class="card inputs" id="calc" novalidate>
+    <div class="field">
+      <label for="price">Price of the home you’d like to buy</label>
+      <div class="money"><span>$</span><input id="price" type="text" inputmode="numeric" value="650,000" data-shared="price" /></div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label for="savings">Savings for your deposit</label>
+        <div class="money"><span>$</span><input id="savings" type="text" inputmode="numeric" value="35,000" data-shared="savings" /></div>
+      </div>
+      <div class="field">
+        <label for="kiwisaver">KiwiSaver balance</label>
+        <div class="money"><span>$</span><input id="kiwisaver" type="text" inputmode="numeric" value="30,000" data-shared="kiwisaver" /></div>
+      </div>
+    </div>
+
+    <fieldset class="field">
+      <legend>Have you been in KiwiSaver for 3 years or more?</legend>
+      <div class="choices">
+        <label><input type="radio" name="ks3" value="yes" checked /> <span>Yes</span></label>
+        <label><input type="radio" name="ks3" value="no" /> <span>Not yet</span></label>
+      </div>
+    </fieldset>
+
+    <div class="field">
+      <label for="gift">Help from family (optional)</label>
+      <div class="money"><span>$</span><input id="gift" type="text" inputmode="numeric" value="" placeholder="0" /></div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label for="save">You save each month</label>
+        <div class="money"><span>$</span><input id="save" type="text" inputmode="numeric" value="1,500" /></div>
+      </div>
+      <div class="field">
+        <label for="kscontrib">KiwiSaver each month</label>
+        <div class="money"><span>$</span><input id="kscontrib" type="text" inputmode="numeric" value="600" /></div>
+        <span class="hint">You plus your employer.</span>
+      </div>
+    </div>
+  </form>
+
+  <div slot="results" class="results dark" aria-live="polite">
+    <span class="eyebrow">Your deposit today</span>
+    <p class="label">You could put down around</p>
+    <p class="big" data-out="deposit">$0</p>
+
+    <div class="calc-bar" aria-hidden="true"><span data-bar="progress" style="background:var(--uv-light)"></span></div>
+    <p class="legend"><span data-out="pctText">0% of the price</span></p>
+
+    <dl>
+      <div><dt>5% deposit</dt><dd data-out="m5">–</dd></div>
+      <div><dt>10% deposit</dt><dd data-out="m10">–</dd></div>
+      <div><dt>20% deposit</dt><dd data-out="m20">–</dd></div>
+      <div><dt>KiwiSaver you can use</dt><dd data-out="ks">$0</dd></div>
+    </dl>
+
+    <p class="verdict" data-out="verdict"></p>
+    <a href="#check-my-numbers" class="btn btn--light" data-nudge-button>Show me my options</a>
+  </div>
+
+  <Fragment slot="note">
+    A rough guide only, not financial advice. Assumes you must leave $1,000 in KiwiSaver, and doesn’t include
+    investment returns, house price changes, or the costs of buying (see our
+    <a href="/calculators/upfront-costs/">buying costs calculator</a>). Check your withdrawal amount with your KiwiSaver provider.
+  </Fragment>
+</CalcPage>
+
+<script>
+  import { $, money, parse, formatMoneyInputs, prefill, saveShared, setSummary, setNudge, trackUsage } from '../../scripts/calc';
+
+  const form = $<HTMLFormElement>('#calc');
+  const resultSeen = trackUsage(form, 'deposit-kiwisaver');
+  formatMoneyInputs(form);
+  prefill(form);
+
+  const when = (months: number) => {
+    if (!isFinite(months)) return 'Add monthly savings';
+    const d = new Date();
+    d.setMonth(d.getMonth() + months);
+    const span = months < 12 ? `${months} mth${months === 1 ? '' : 's'}` : `${(months / 12).toFixed(1).replace('.0', '')} yrs`;
+    return `${span} (${d.toLocaleDateString('en-NZ', { month: 'short', year: 'numeric' })})`;
+  };
+
+  function update(fromUser = false) {
+    const price = parse($<HTMLInputElement>('#price').value);
+    const savings = parse($<HTMLInputElement>('#savings').value);
+    const kiwisaver = parse($<HTMLInputElement>('#kiwisaver').value);
+    const gift = parse($<HTMLInputElement>('#gift').value);
+    const save = parse($<HTMLInputElement>('#save').value);
+    const ksContrib = parse($<HTMLInputElement>('#kscontrib').value);
+    const eligible = form.querySelector<HTMLInputElement>('input[name="ks3"]:checked')!.value === 'yes';
+
+    const ksUsable = eligible ? Math.max(0, kiwisaver - 1000) : 0;
+    const deposit = savings + ksUsable + gift;
+    const pct = price > 0 ? deposit / price : 0;
+    const monthly = save + ksContrib;
+
+    $('[data-out="deposit"]').textContent = money(deposit);
+    $('[data-out="ks"]').textContent = eligible ? money(ksUsable) : 'After 3 years';
+    $('[data-out="pctText"]').textContent = `${(pct * 100).toFixed(1)}% of the price`;
+    $('[data-bar="progress"]').style.width = `${Math.min(100, (pct / 0.2) * 100)}%`;
+
+    const milestone = (target: number) => {
+      const need = price * target - deposit;
+      if (need <= 0) return 'Reached ✓';
+      return when(monthly > 0 ? Math.ceil(need / monthly) : Infinity);
+    };
+    $('[data-out="m5"]').textContent = milestone(0.05);
+    $('[data-out="m10"]').textContent = milestone(0.1);
+    $('[data-out="m20"]').textContent = milestone(0.2);
+
+    const p = Math.floor(pct * 100);
+    let verdict: string;
+    if (!price) {
+      verdict = 'Add a price to see your progress.';
+    } else if (pct >= 0.2) {
+      verdict = `You have a ${p}% deposit, which meets most lenders’ standard requirement. You could be ready to get pre-approved.`;
+      setNudge({ title: `${p}% deposit? You could be ready to buy.`, text: 'Let’s confirm what you can borrow and get you pre-approved, so you can make offers with confidence.', button: 'Get me pre-approval ready' });
+    } else if (pct >= 0.1) {
+      verdict = `You have ${p}%. Lenders can make a limited number of loans below 20%, so you may not need to wait.`;
+      setNudge({ title: `${p}% deposit? You may not need to wait for 20%.`, text: 'Some lenders lend to buyers with 10–20% deposits. Extra costs can apply, so we’ll compare which options make sense for you.', button: 'See if I qualify' });
+    } else if (pct >= 0.05) {
+      verdict = `You have ${p}%. Some schemes help eligible first home buyers buy with a 5% deposit.`;
+      setNudge({ title: `${p}% deposit? Low-deposit options may suit you.`, text: 'Some schemes help eligible first home buyers buy with as little as 5%. We’ll check whether you qualify and what it would cost.', button: 'See if I qualify' });
+    } else {
+      verdict = `You have ${p}% so far. A clear plan can get you there faster.`;
+      setNudge({ title: 'Let’s build your plan to buy.', text: 'We’ll show you how much you need, how to use KiwiSaver and family help, and the fastest realistic path to your first home.', button: 'Help me make a plan' });
+    }
+    $('[data-out="verdict"]').textContent = verdict;
+
+    setSummary(`Deposit & KiwiSaver calculator | Price: ${money(price)} | Savings: ${money(savings)} | KiwiSaver: ${money(kiwisaver)}${eligible ? '' : ' (under 3 yrs)'} | Family help: ${money(gift)} | Deposit now: ${money(deposit)} (${(pct * 100).toFixed(1)}%) | Saving per month: ${money(monthly)}`);
+    if (fromUser) saveShared({ price, savings, kiwisaver, deposit });
+    if (price) resultSeen();
+  }
+
+  form.addEventListener('input', () => update(true));
+  form.addEventListener('change', () => update(true));
+  update();
+</script>

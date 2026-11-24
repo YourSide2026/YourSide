@@ -3,11 +3,13 @@ import { site } from '../data/site';
 import Logo from './Logo.astro';
 import { services } from '../data/services';
 import { advisers } from '../data/advisers';
+const { minimal = false } = Astro.props as { minimal?: boolean };
 const year = new Date().getFullYear();
 const socials = Object.entries(site.social).filter(([, url]) => url) as [string, string][];
 ---
 
-<footer class="site-footer dark">
+<footer class:list={['site-footer dark', { 'site-footer--minimal': minimal }]}>
+  {!minimal && (
   <div class="wrap cols">
     <div class="brand">
       <a href="/" class="footer-logo" aria-label="YourSide home"><Logo variant="white" height={28} /></a>
@@ -32,7 +34,7 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [string,
     <div>
       <h2>Resources</h2>
       <ul>
-        <li><a href="/borrowing-calculator/">Borrowing calculator</a></li>
+        <li><a href="/calculators/">Mortgage calculators</a></li>
         <li><a href="/interest-rates/">Interest rates</a></li>
         <li><a href="/guides/">Guides &amp; insights</a></li>
         <li><a href="/contact/">Contact us</a></li>
@@ -46,6 +48,7 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [string,
       </ul>
     </div>
   </div>
+  )}
 
   <div class="wrap legal">
     <p>© {year} {site.name}{site.fspNumber && ` · FSP${site.fspNumber}`}</p>
@@ -72,6 +75,8 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [string,
   a { color: #fff !important; text-decoration: none; }
   a:hover { text-decoration: underline; }
   .socials a { margin-right: 1rem; }
+  .site-footer--minimal { padding-block: 0.5rem 2rem; }
+  .site-footer--minimal .legal { margin-top: 1.5rem; }
   .legal {
     margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid rgb(255 255 255 / 15%);
     display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; font-size: 0.85rem; opacity: 0.85;

@@ -1,0 +1,178 @@
+---
+import Base from '../../layouts/Base.astro';
+import QuickEnquiry from '../../components/calc/QuickEnquiry.astro';
+import { tools, toolUrl } from '../../data/tools';
+import { site } from '../../data/site';
+
+const starts = [
+  { value: 'first', label: 'Buying my first home' },
+  { value: 'moving', label: 'Moving home' },
+  { value: 'refinance', label: 'Refinancing' },
+  { value: 'investing', label: 'Investing' },
+];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'YourSide mortgage calculators',
+  itemListElement: tools.map((t, i) => ({ '@type': 'ListItem', position: i + 1, name: t.name, url: new URL(toolUrl(t.slug), site.url).href })),
+};
+---
+
+<Base
+  title="Mortgage calculators NZ"
+  description="Free NZ mortgage calculators: how much can I borrow, repayments, deposit and KiwiSaver, buying costs and refinancing. Get a feel for your numbers, then have a Wellington adviser check them."
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+  <section class="hub-hero">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span>Calculators</span></nav>
+      <span class="eyebrow">Mortgage calculators</span>
+      <h1>Get a feel for your numbers.</h1>
+      <p class="lede">Free, quick tools to help you plan. No sign-up and no credit check. When you’re ready, an adviser can check your numbers against real lenders.</p>
+
+      <fieldset class="start">
+        <legend>What are you working towards?</legend>
+        <div class="start-options">
+          {starts.map((s) => (
+            <label><input type="radio" name="start" value={s.value} /><span>{s.label}</span></label>
+          ))}
+        </div>
+      </fieldset>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <p class="tip" data-tip aria-live="polite">Pick what you’re working towards above and we’ll suggest where to start, or choose any calculator below.</p>
+      <div class="tools" data-tools>
+        {tools.map((t, i) => (
+          <a class="tool" href={toolUrl(t.slug)} data-for={t.for.join(' ')} style={`--order:${i}`}>
+            <span class="badge" data-badge hidden>Start here</span>
+            <span class="icon"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d={t.icon} fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
+            <span class="name">{t.name}</span>
+            <h2>{t.title}</h2>
+            <p>{t.blurb}</p>
+            <span class="go">Open calculator <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+      <p class="carry">Numbers you enter carry across between calculators, and they stay in your browser unless you send them to us.</p>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="wrap ask">
+      <div>
+        <span class="eyebrow">Prefer to talk it through?</span>
+        <h2>Skip the maths. We’ll do it with you.</h2>
+        <p class="intro">Calculators give a rough idea. An adviser can tell you what real lenders would offer, based on your full situation.</p>
+        <ul class="trust">
+          <li>We reply within one working day</li>
+          <li>No cost to you, and no credit check</li>
+          <li>Wellington advisers, in person, by phone or online</li>
+        </ul>
+      </div>
+      <div class="card">
+        <QuickEnquiry id="qe-hub" source="Calculators page" button="Talk to an adviser" />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { track } from '../../scripts/calc';
+
+  const tips: Record<string, string> = {
+    first: 'Start by checking how close you are to a deposit, then see what you could borrow and the full cash you’ll need.',
+    moving: 'See what you could borrow for your next home, then check your repayments and the costs of buying.',
+    refinance: 'See whether switching lenders could save you money, then check repayments at a new rate.',
+    investing: 'Check what you could borrow for an investment property (most lenders want a 30% deposit), then your repayments.',
+  };
+  // Suggested order per goal (calculator slugs)
+  const order: Record<string, string[]> = {
+    first: ['deposit-kiwisaver', 'how-much-can-i-borrow', 'upfront-costs', 'mortgage-repayments', 'refinance-savings'],
+    moving: ['how-much-can-i-borrow', 'mortgage-repayments', 'upfront-costs', 'refinance-savings', 'deposit-kiwisaver'],
+    refinance: ['refinance-savings', 'mortgage-repayments', 'how-much-can-i-borrow', 'upfront-costs', 'deposit-kiwisaver'],
+    investing: ['how-much-can-i-borrow', 'mortgage-repayments', 'upfront-costs', 'refinance-savings', 'deposit-kiwisaver'],
+  };
+
+  const cards = [...document.querySelectorAll<HTMLAnchorElement>('[data-tools] .tool')];
+  const tip = document.querySelector<HTMLElement>('[data-tip]')!;
+
+  function choose(goal: string) {
+    tip.textContent = tips[goal];
+    const list = order[goal];
+    cards.forEach((card) => {
+      const slug = card.getAttribute('href')!.split('/').filter(Boolean).pop()!;
+      const pos = list.indexOf(slug);
+      card.style.setProperty('--order', String(pos));
+      card.classList.toggle('dim', !card.dataset.for!.split(' ').includes(goal));
+      card.querySelector<HTMLElement>('[data-badge]')!.hidden = pos !== 0;
+    });
+    sessionStorage.setItem('yourside-goal', goal);
+  }
+
+  document.querySelectorAll<HTMLInputElement>('input[name="start"]').forEach((input) =>
+    input.addEventListener('change', () => {
+      choose(input.value);
+      track('calculator_hub_goal', { goal: input.value });
+    }),
+  );
+  const saved = sessionStorage.getItem('yourside-goal');
+  if (saved && tips[saved]) {
+    document.querySelector<HTMLInputElement>(`input[name="start"][value="${saved}"]`)!.checked = true;
+    choose(saved);
+  }
+</script>
+
+<style>
+  .hub-hero {
+    background:
+      linear-gradient(120deg, rgb(42 22 69 / 94%) 0%, rgb(58 31 94 / 82%) 60%, rgb(74 40 120 / 75%) 100%),
+      var(--purple) url('/brand/pattern-2.jpg') center / cover;
+    color: #fff; padding-block: clamp(2rem, 5vw, 3rem) clamp(3rem, 7vw, 4.5rem);
+  }
+  .crumbs { display: flex; gap: 0.5rem; font-size: 0.85rem; color: rgb(255 255 255 / 70%); margin-bottom: 2rem; }
+  .crumbs a { color: rgb(255 255 255 / 85%); text-decoration: none; }
+  .hub-hero .eyebrow { color: var(--uv-light); }
+  .hub-hero h1 { color: #fff; }
+  .lede { max-width: 640px; font-size: 1.15rem; color: rgb(255 255 255 / 82%); }
+
+  .start { border: 0; padding: 0; margin: 2rem 0 0; }
+  .start legend { font-weight: 600; margin-bottom: 0.9rem; font-size: 1.05rem; }
+  .start-options { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .start label { position: relative; cursor: pointer; }
+  .start input { position: absolute; opacity: 0; }
+  .start span {
+    display: block; padding: 0.8rem 1.2rem; border-radius: var(--radius-sm); font-weight: 600;
+    border: 1.5px solid rgb(255 255 255 / 35%); color: #fff; transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .start label:hover span { border-color: #fff; }
+  .start input:checked + span { background: #fff; color: var(--purple); border-color: #fff; }
+  .start input:focus-visible + span { outline: 3px solid var(--uv-light); outline-offset: 2px; }
+
+  .tip { font-size: 1.05rem; color: var(--purple); font-weight: 500; margin-bottom: 1.75rem; max-width: 760px; }
+  .tools { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); }
+  .tool {
+    order: var(--order); position: relative; display: flex; flex-direction: column; text-decoration: none;
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 1.75rem;
+    transition: border-color 0.15s, opacity 0.2s; color: var(--slate);
+  }
+  .tool:hover { border-color: var(--ultraviolet); color: var(--slate); }
+  .tool.dim { opacity: 0.55; }
+  .tool.dim:hover { opacity: 1; }
+  .badge { position: absolute; top: 1.25rem; right: 1.25rem; background: var(--ultraviolet); color: #fff; font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 4px; }
+  .icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 12px; background: var(--uv-50); color: var(--ultraviolet); margin-bottom: 1.25rem; }
+  .name { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate-muted); margin-bottom: 0.4rem; }
+  .tool h2 { font-size: 1.35rem; margin-bottom: 0.5rem; }
+  .tool p { color: var(--slate-muted); font-size: 0.95rem; }
+  .go { margin-top: auto; font-weight: 600; color: var(--ultraviolet); }
+  .carry { color: var(--slate-muted); font-size: 0.9rem; margin-top: 1.5rem; }
+
+  .ask { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+  .trust { list-style: none; padding: 0; margin: 1.5rem 0 0; display: grid; gap: 0.5rem; }
+  .trust li::before { content: '✓'; color: var(--ultraviolet); font-weight: 700; margin-right: 0.6rem; }
+  @media (max-width: 860px) { .ask { grid-template-columns: 1fr; } }
+</style>

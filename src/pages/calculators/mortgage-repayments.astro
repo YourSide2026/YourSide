@@ -1,0 +1,154 @@
+---
+import CalcPage from '../../components/calc/CalcPage.astro';
+import { calculator } from '../../data/calculator';
+---
+
+<CalcPage
+  slug="mortgage-repayments"
+  metaTitle="Mortgage repayment calculator NZ"
+  description="Work out your weekly, fortnightly or monthly mortgage repayments, the total interest you’ll pay and what a rate change would mean. Free NZ mortgage repayment calculator."
+  eyebrow="Repayment calculator"
+  title="What will my repayments be?"
+  intro="See your repayments, the total interest over the life of the loan, and how much a rate change would make."
+  source="Repayment calculator"
+  leadTitle="Could a better rate cut your repayments?"
+  button="Find me a better rate"
+  faqs={[
+    { q: 'Is it better to pay weekly, fortnightly or monthly?', a: 'Paying more often means interest is calculated on a slightly lower balance, so you can save a little. The bigger saving comes from paying more than the minimum, for example paying half your monthly amount every fortnight, which adds up to an extra month’s payment each year.' },
+    { q: 'What is a table loan?', a: 'Most NZ home loans are table loans, where your repayment stays the same while your rate does. Early on most of each payment is interest; over time more goes to paying off the loan.' },
+    { q: 'Should I fix or float?', a: 'Fixing gives certainty, floating gives flexibility, and many people split their loan across both. The right mix depends on your plans, so it’s worth talking it through with an adviser.' },
+  ]}
+>
+  <form slot="inputs" class="card inputs" id="calc" novalidate>
+    <div class="field">
+      <label for="loan">Loan amount</label>
+      <div class="money"><span>$</span><input id="loan" type="text" inputmode="numeric" value="600,000" data-shared="loan" /></div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label for="rate">Interest rate</label>
+        <div class="suffix"><input id="rate" type="number" step="0.01" min="0" max="20" value={(calculator.exampleRate * 100).toFixed(2)} data-shared="rate" /><span>%</span></div>
+      </div>
+      <div class="field">
+        <label for="term">Loan term</label>
+        <div class="suffix"><input id="term" type="number" step="1" min="1" max="40" value="30" /><span>yrs</span></div>
+      </div>
+    </div>
+
+    <fieldset class="field">
+      <legend>How often will you pay?</legend>
+      <div class="choices choices--3">
+        <label><input type="radio" name="freq" value="52" /> <span>Weekly</span></label>
+        <label><input type="radio" name="freq" value="26" checked /> <span>Fortnightly</span></label>
+        <label><input type="radio" name="freq" value="12" /> <span>Monthly</span></label>
+      </div>
+    </fieldset>
+
+    <div class="field">
+      <label for="extra">Extra repayment each time (optional)</label>
+      <div class="money"><span>$</span><input id="extra" type="text" inputmode="numeric" value="" placeholder="0" /></div>
+      <span class="hint">See how much sooner you’d be mortgage-free by paying a little more.</span>
+    </div>
+  </form>
+
+  <div slot="results" class="results dark" aria-live="polite">
+    <span class="eyebrow">Your repayments</span>
+    <p class="label" data-out="freqLabel">Fortnightly repayment</p>
+    <p class="big" data-out="pay">$0</p>
+
+    <div class="calc-bar" aria-hidden="true"><span data-bar="principal" style="background:#fff"></span><span data-bar="interest" style="background:var(--ultraviolet)"></span></div>
+    <p class="legend"><span><i style="background:#fff"></i>Loan <b data-out="principal"></b></span><span><i style="background:var(--ultraviolet)"></i>Interest <b data-out="interest"></b></span></p>
+
+    <dl>
+      <div><dt>Total you’ll repay</dt><dd data-out="total">$0</dd></div>
+      <div><dt>Mortgage-free in</dt><dd data-out="years">30 years</dd></div>
+      <div><dt data-out="upLabel">If rates rise 1%</dt><dd data-out="up">$0</dd></div>
+      <div><dt data-out="downLabel">If rates fall 0.5%</dt><dd data-out="down">$0</dd></div>
+    </dl>
+
+    <p class="verdict" data-out="verdict"></p>
+    <a href="#check-my-numbers" class="btn btn--light" data-nudge-button>Find me a better rate</a>
+  </div>
+
+  <Fragment slot="note">
+    A rough guide only, not a loan offer or financial advice. Assumes a principal-and-interest (table) loan at the
+    same rate for the whole term. Real rates change over time and fixed terms usually last one to five years.
+  </Fragment>
+</CalcPage>
+
+<script>
+  import { $, money, parse, repayment, formatMoneyInputs, prefill, saveShared, setSummary, setNudge, trackUsage } from '../../scripts/calc';
+
+  const form = $<HTMLFormElement>('#calc');
+  const resultSeen = trackUsage(form, 'repayments');
+  const names: Record<number, string> = { 52: 'Weekly', 26: 'Fortnightly', 12: 'Monthly' };
+  formatMoneyInputs(form);
+  prefill(form);
+
+  /** Periods needed to clear a loan paying `pay` each period. */
+  function periodsToRepay(loan: number, annualRate: number, perYear: number, pay: number) {
+    const r = annualRate / perYear;
+    if (r === 0) return loan / pay;
+    if (pay <= loan * r) return Infinity;
+    return -Math.log(1 - (loan * r) / pay) / Math.log(1 + r);
+  }
+  const yearsText = (periods: number, perYear: number) => {
+    const months = Math.round((periods / perYear) * 12);
+    const y = Math.floor(months / 12), m = months % 12;
+    return `${y} yr${y === 1 ? '' : 's'}${m ? ` ${m} mth${m === 1 ? '' : 's'}` : ''}`;
+  };
+
+  function update(fromUser = false) {
+    const loan = parse($<HTMLInputElement>('#loan').value);
+    const rate = (Number($<HTMLInputElement>('#rate').value) || 0) / 100;
+    const term = Math.min(40, Math.max(1, Number($<HTMLInputElement>('#term').value) || 30));
+    const perYear = Number(form.querySelector<HTMLInputElement>('input[name="freq"]:checked')!.value);
+    const extra = parse($<HTMLInputElement>('#extra').value);
+
+    const base = repayment(loan, rate, term, perYear);
+    const pay = base + extra;
+    const periods = extra > 0 ? periodsToRepay(loan, rate, perYear, pay) : term * perYear;
+    const total = pay * periods;
+    const interest = Math.max(0, total - loan);
+    const up = repayment(loan, rate + 0.01, term, perYear);
+    const down = repayment(loan, Math.max(0, rate - 0.005), term, perYear);
+
+    $('[data-out="freqLabel"]').textContent = `${names[perYear]} repayment${extra ? ' (with extra)' : ''}`;
+    $('[data-out="pay"]').textContent = money(pay);
+    $('[data-out="principal"]').textContent = money(loan);
+    $('[data-out="interest"]').textContent = money(interest);
+    $('[data-out="total"]').textContent = money(total);
+    $('[data-out="years"]').textContent = yearsText(periods, perYear);
+    $('[data-out="up"]').textContent = `${money(up)} (+${money(up - base)})`;
+    $('[data-out="down"]').textContent = `${money(down)} (−${money(base - down)})`;
+    const pct = total > 0 ? (loan / total) * 100 : 100;
+    $('[data-bar="principal"]').style.width = `${pct}%`;
+    $('[data-bar="interest"]').style.width = `${100 - pct}%`;
+
+    let verdict = `Over ${yearsText(periods, perYear)} you’d pay about ${money(interest)} in interest.`;
+    if (extra > 0) {
+      const savedInterest = Math.max(0, base * term * perYear - loan - interest);
+      verdict += ` Paying ${money(extra)} extra could save around ${money(savedInterest)} and clear your loan ${yearsText(term * perYear - periods, perYear)} sooner.`;
+    }
+    $('[data-out="verdict"]').textContent = verdict;
+
+    // What a slightly better rate would be worth, per year
+    const quarter = (base - repayment(loan, Math.max(0, rate - 0.0025), term, perYear)) * perYear;
+    if (loan > 0) {
+      setNudge({
+        title: `Every 0.25% counts: about ${money(quarter)} a year on this loan.`,
+        text: 'We compare rates and cash contributions across lenders, negotiate on your behalf, and help you choose a fixed and floating mix that suits your plans.',
+        button: 'Find me a better rate',
+      });
+    }
+
+    setSummary(`Repayment calculator | Loan: ${money(loan)} | Rate: ${(rate * 100).toFixed(2)}% | Term: ${term} yrs | ${names[perYear]}: ${money(pay)}${extra ? ` (incl. ${money(extra)} extra)` : ''} | Total interest: ${money(interest)}`);
+    if (fromUser) saveShared({ loan, rate: rate * 100 });
+    if (loan) resultSeen();
+  }
+
+  form.addEventListener('input', () => update(true));
+  form.addEventListener('change', () => update(true));
+  update();
+</script>
