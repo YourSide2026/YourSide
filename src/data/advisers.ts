@@ -32,7 +32,7 @@ export const advisers: Adviser[] = [
       'I love seeing my clients succeed!',
     ],
     specialties: ['Home loans', 'Investment property', 'Business & commercial'],
-    photo: null,
+    photo: '/team/dan-bailey.png', // transparent PNG: shown on a brand-purple circle
   },
   {
     slug: 'jorja',

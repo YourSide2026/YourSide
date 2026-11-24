@@ -27,7 +27,7 @@ const total = quiz.questions.length;
           <li>Real advisers, based in Wellington</li>
         </ul>
         <p class="team">
-          <span class="faces" aria-hidden="true">{advisers.map((a) => <span>{a.name[0]}</span>)}</span>
+          <span class="faces" aria-hidden="true">{advisers.map((a) => a.photo ? <img src={a.photo} alt="" width="34" height="34" /> : <span>{a.name[0]}</span>)}</span>
           From {advisers.map((a) => a.name).join(', ').replace(/, ([^,]*)$/, ' & $1')} at YourSide
         </p>
       </div>
@@ -185,8 +185,8 @@ const total = quiz.questions.length;
   .trust li::before { content: '✓'; color: var(--uv-light); font-weight: 700; margin-right: 0.6rem; }
   .team { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: rgb(255 255 255 / 75%); }
   .faces { display: flex; }
-  .faces span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--ultraviolet); border: 2px solid var(--purple); font-weight: 600; font-size: 0.85rem; color: #fff; }
-  .faces span + span { margin-left: -9px; }
+  .faces > * { display: grid; object-fit: cover; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--ultraviolet); border: 2px solid var(--purple); font-weight: 600; font-size: 0.85rem; color: #fff; }
+  .faces > * + * { margin-left: -9px; }
 
   .quiz { color: var(--slate); padding: clamp(1.5rem, 4vw, 2.25rem); box-shadow: 0 30px 60px rgb(20 8 38 / 35%); }
   .progress { height: 6px; background: var(--uv-50); border-radius: 999px; overflow: hidden; }
