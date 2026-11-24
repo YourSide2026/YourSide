@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ContactForm from '../../components/ContactForm.astro';
+import GoogleReviews from '../../components/GoogleReviews.astro';
 import { advisers, type Adviser } from '../../data/advisers';
 
 export function getStaticPaths() {
@@ -52,6 +53,8 @@ const others = advisers.filter((a) => a.slug !== adviser.slug);
       <ContactForm adviser={adviser.slug} source={`Adviser page: ${adviser.name}`} heading={`Talk to ${adviser.name}`} />
     </div>
   </section>
+
+  <GoogleReviews adviser={adviser.slug} name={adviser.name} />
 </Base>
 
 <style>

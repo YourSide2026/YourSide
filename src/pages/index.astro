@@ -42,6 +42,11 @@ const latestGuides = (await getGuides()).slice(0, 3);
           <li>We compare lenders for you</li>
           <li>With you through to settlement</li>
         </ul>
+        <ul class="awards rise" style="--d:400ms" aria-label="Awards">
+          <li><img src="/awards/moneyhub-2026.svg" alt="MoneyHub 2026 Favourite Nationwide Mortgage Adviser, Editor’s Choice" width="84" height="84" /></li>
+          <li><img src="/awards/moneyhub-2025.svg" alt="MoneyHub 2025 Favourite Nationwide Mortgage Adviser, Editor’s Choice" width="84" height="84" /></li>
+          <li class="wreath"><img src="/awards/loan-market-2022.png" alt="Loan Market Awards 2022 Winner, #1 International Top 20 Businesses" width="84" height="84" /></li>
+        </ul>
       </div>
 
       <nav class="quick rise" style="--d:200ms" aria-label="What are you looking to do?">
@@ -225,6 +230,11 @@ const latestGuides = (await getGuides()).slice(0, 3);
     content: ''; width: 16px; height: 16px; flex: none; border-radius: 50%;
     background: var(--ultraviolet) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 8.2l2.2 2.2 4.8-4.8' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px;
   }
+
+  .awards { list-style: none; padding: 0; margin: 2rem 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem; }
+  .awards img { width: 84px; height: 84px; object-fit: contain; filter: drop-shadow(0 6px 14px rgb(0 0 0 / 30%)); }
+  .awards .wreath img { width: 96px; height: 96px; margin-block: -6px; }
+  @media (max-width: 480px) { .awards { gap: 1rem; } .awards img { width: 72px; height: 72px; } }
 
   .hero-grid { position: relative; display: grid; grid-template-columns: 1.35fr 1fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
 
