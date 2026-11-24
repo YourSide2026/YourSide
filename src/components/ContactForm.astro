@@ -1,0 +1,90 @@
+---
+// One contact form used everywhere on the site.
+// Netlify Forms collects submissions (no server needed). Every copy of the
+// form has the same fields so Netlify records them all under "contact".
+import { advisers } from '../data/advisers';
+import { services } from '../data/services';
+
+interface Props {
+  adviser?: string; // adviser slug to pre-select, e.g. "dan"
+  source: string; // which page the enquiry came from
+  heading?: string;
+  id?: string;
+}
+
+const { adviser = '', source, heading = 'Get in touch', id = 'contact-form' } = Astro.props;
+---
+
+<form
+  id={id}
+  class="contact-form card"
+  name="contact"
+  method="POST"
+  action="/thank-you/"
+  data-netlify="true"
+  netlify-honeypot="bot-field"
+>
+  <h2 class="form-title">{heading}</h2>
+  <p class="form-sub">Free, no-obligation advice. We’ll get back to you within one working day.</p>
+
+  <input type="hidden" name="form-name" value="contact" />
+  <input type="hidden" name="source" value={source} />
+  <input type="hidden" name="calculator_summary" value="" data-calc-summary />
+  <p class="visually-hidden">
+    <label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+  </p>
+
+  <div class="row">
+    <div class="field">
+      <label for={`${id}-name`}>Name</label>
+      <input id={`${id}-name`} type="text" name="name" autocomplete="name" required />
+    </div>
+    <div class="field">
+      <label for={`${id}-phone`}>Phone</label>
+      <input id={`${id}-phone`} type="tel" name="phone" autocomplete="tel" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for={`${id}-email`}>Email</label>
+    <input id={`${id}-email`} type="email" name="email" autocomplete="email" required />
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for={`${id}-adviser`}>Who would you like to talk to?</label>
+      <select id={`${id}-adviser`} name="adviser">
+        <option value="Any adviser" selected={!adviser}>Anyone, first available</option>
+        {advisers.map((a) => <option value={a.name} selected={adviser === a.slug}>{a.name}</option>)}
+      </select>
+    </div>
+    <div class="field">
+      <label for={`${id}-topic`}>What can we help with?</label>
+      <select id={`${id}-topic`} name="topic">
+        <option value="Not sure yet">Not sure yet</option>
+        {services.map((s) => <option value={s.title}>{s.title}</option>)}
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for={`${id}-message`}>Message <span class="hint">(optional)</span></label>
+    <textarea id={`${id}-message`} name="message" rows="4"></textarea>
+  </div>
+
+  <label class="checkbox">
+    <input type="checkbox" name="consent" value="yes" required />
+    <span>I agree to YourSide contacting me about my enquiry, as set out in the <a href="/privacy/">privacy policy</a>.</span>
+  </label>
+
+  <button class="btn" type="submit">Send enquiry</button>
+</form>
+
+<style>
+  .contact-form { padding: clamp(1.5rem, 4vw, 2.25rem); }
+  .form-title { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  .form-sub { color: var(--slate-muted); margin-bottom: 1.5rem; }
+  .row { display: grid; gap: 0 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+  .checkbox { margin: 0.5rem 0 1.5rem; }
+  button { width: 100%; }
+</style>

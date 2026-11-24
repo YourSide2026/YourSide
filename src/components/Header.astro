@@ -1,0 +1,87 @@
+---
+import { nav } from '../data/site';
+const path = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a href="/" class="logo" aria-label="YourSide home">
+      <img src="/brand/logo.svg" alt="YourSide" width="200" height="28" />
+    </a>
+
+    <!-- Desktop menu -->
+    <nav class="desktop" aria-label="Main">
+      <ul>
+        {nav.map((item) => (
+          <li><a href={item.href} aria-current={path === item.href ? 'page' : undefined}>{item.label}</a></li>
+        ))}
+      </ul>
+      <a href="/contact/" class="btn">Talk to an adviser</a>
+    </nav>
+
+    <!-- Mobile menu: <details> opens and closes without any JavaScript -->
+    <details class="mobile">
+      <summary>
+        <span class="burger" aria-hidden="true"></span>
+        Menu
+      </summary>
+      <nav aria-label="Main (mobile)">
+        <ul>
+          {nav.map((item) => (
+            <li><a href={item.href} aria-current={path === item.href ? 'page' : undefined}>{item.label}</a></li>
+          ))}
+        </ul>
+        <a href="/contact/" class="btn">Talk to an adviser</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgb(255 255 255 / 96%);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar { position: relative; display: flex; align-items: center; justify-content: space-between; min-height: 76px; gap: 1.5rem; }
+  .logo img { width: 172px; height: auto; }
+
+  ul { list-style: none; margin: 0; padding: 0; }
+  nav a:not(.btn) { color: var(--purple); font-weight: 600; font-size: 0.98rem; text-decoration: none; }
+  nav a:not(.btn):hover, nav a[aria-current='page'] { color: var(--ultraviolet); }
+
+  .desktop { display: flex; align-items: center; gap: 1.75rem; }
+  .desktop ul { display: flex; gap: 1.5rem; }
+  .desktop .btn { padding: 0.65rem 1.2rem; font-size: 0.95rem; }
+  .mobile { display: none; }
+
+  @media (max-width: 960px) {
+    .desktop { display: none; }
+    .mobile { display: block; }
+    summary {
+      list-style: none; cursor: pointer;
+      display: flex; align-items: center; gap: 0.6rem;
+      font-weight: 600; color: var(--purple); padding: 0.5rem 0.25rem;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .burger, .burger::before, .burger::after {
+      display: block; width: 22px; height: 2px; background: var(--purple); border-radius: 2px; position: relative;
+    }
+    .burger::before, .burger::after { content: ''; position: absolute; left: 0; }
+    .burger::before { top: -7px; }
+    .burger::after { top: 7px; }
+    .mobile[open] .burger { background: transparent; }
+    .mobile[open] .burger::before { top: 0; transform: rotate(45deg); }
+    .mobile[open] .burger::after { top: 0; transform: rotate(-45deg); }
+
+    .mobile nav {
+      position: absolute; left: -1.25rem; right: -1.25rem; top: 100%;
+      display: grid; gap: 1rem;
+      background: #fff; border-bottom: 1px solid var(--line);
+      padding: 0.5rem 1.25rem 1.5rem;
+      box-shadow: 0 12px 24px rgb(58 31 94 / 10%);
+    }
+    .mobile ul a { display: block; padding: 0.85rem 0; border-bottom: 1px solid var(--line); }
+  }
+</style>

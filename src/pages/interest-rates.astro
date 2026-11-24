@@ -1,0 +1,115 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { rates } from '../data/rates';
+
+// Find the lowest rate for each term so it can be highlighted
+const best = rates.terms.map((_, i) => {
+  const values = rates.lenders.map((l) => l.rates[i]).filter((r): r is number => r !== null);
+  return values.length ? Math.min(...values) : null;
+});
+const hasRates = best.some((b) => b !== null);
+---
+
+<Base
+  title="Home loan interest rates"
+  description="Compare home loan interest rates from New Zealand’s main banks, then talk to a YourSide mortgage adviser about which rate and structure suits you."
+>
+  <PageHero
+    eyebrow="Interest rates"
+    title="Compare home loan rates."
+    intro="Advertised rates from New Zealand’s main lenders. The rate on the poster isn’t always the one you’ll get. We can often negotiate better, so talk to us before you fix."
+  />
+
+  <section class="section">
+    <div class="wrap">
+      {!hasRates && (
+        <p class="todo">Sample layout. Rates still need to be added in <code>src/data/rates.ts</code> before launch.</p>
+      )}
+
+      <div class="table-wrap" role="region" aria-label="Home loan interest rates" tabindex="0">
+        <table>
+          <caption class="visually-hidden">Advertised home loan interest rates by lender and term, % per year</caption>
+          <thead>
+            <tr>
+              <th scope="col">Lender</th>
+              {rates.terms.map((t) => <th scope="col">{t}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {rates.lenders.map((l) => (
+              <tr>
+                <th scope="row">{l.name}</th>
+                {l.rates.map((r, i) => (
+                  <td class={r !== null && r === best[i] ? 'best' : undefined}>
+                    {r === null ? <span class="tbc">TBC</span> : `${r.toFixed(2)}%`}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="notes">
+        <p>
+          {rates.updated ? <>Rates last updated {rates.updated}. </> : null}
+          Highlighted figures are the lowest advertised rate for each term. Rates are per year, for owner-occupied
+          lending with at least 20% equity, and can change at any time. Lender criteria, fees and terms apply.
+        </p>
+        <p>
+          Want to dig deeper? <a href={rates.moneyhubUrl} rel="noopener" target="_blank">Compare mortgage rates on Moneyhub</a>,
+          then come back to us to put the right deal together.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="wrap explain">
+      <div class="card">
+        <h3>Fixed or floating?</h3>
+        <p>Fixing gives you certainty. Floating gives you flexibility to make extra repayments. Many people split their loan across both, and we’ll help you find the right mix.</p>
+      </div>
+      <div class="card">
+        <h3>Which term?</h3>
+        <p>The lowest rate today isn’t always the best choice. We look at where rates are heading and what’s coming up in your life before recommending a term.</p>
+      </div>
+      <div class="card">
+        <h3>Better than advertised</h3>
+        <p>Banks compete for business through advisers. That can mean sharper rates and cash contributions that aren’t on the website.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap contact">
+      <div>
+        <span class="eyebrow">Get a rate check</span>
+        <h2>Is your rate working as hard as you are?</h2>
+        <p class="intro">Whether you’re buying or coming off a fixed term, we’ll tell you what’s really on offer.</p>
+      </div>
+      <ContactForm source="Interest rates page" id="rates-form" heading="Ask about rates" />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .todo { margin-bottom: 1.5rem; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; min-width: 760px; font-size: 0.98rem; }
+  th, td { padding: 0.95rem 1rem; text-align: center; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  thead th { background: var(--purple); color: #fff; font-weight: 600; font-size: 0.85rem; }
+  tbody th { text-align: left; color: var(--purple); font-weight: 600; position: sticky; left: 0; background: #fff; }
+  tbody tr:nth-child(even) td, tbody tr:nth-child(even) th { background: var(--uv-50); }
+  tbody tr:last-child > * { border-bottom: 0; }
+  td.best { color: var(--ultraviolet); font-weight: 700; }
+  .tbc { color: #b1a6b8; font-size: 0.85rem; }
+  .notes { margin-top: 1.25rem; font-size: 0.9rem; color: var(--slate-muted); max-width: 820px; }
+
+  .explain { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+
+  .contact { display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem; align-items: start; }
+  @media (max-width: 860px) { .contact { grid-template-columns: 1fr; } }
+</style>

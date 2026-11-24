@@ -1,16 +1,189 @@
 ---
+import Base from '../layouts/Base.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { services } from '../data/services';
+import { advisers } from '../data/advisers';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Mortgage advice in your corner</span>
+        <h1>A better way forward starts with <span class="uv">YourSide.</span></h1>
+        <p class="intro">
+          Buying a home, investing in property, or securing business finance can feel overwhelming. We make it
+          easier to understand your options, make confident decisions and move towards what matters to you.
+        </p>
+        <div class="actions">
+          <a href="/contact/" class="btn">Talk to an adviser</a>
+          <a href="/borrowing-calculator/" class="btn btn--ghost">How much can I borrow?</a>
+        </div>
+      </div>
+      <img class="badge" src="/brand/badge-mortgage-advice-badge-white.png" alt="" width="480" height="480" />
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section id="services" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">How we can help</span>
+        <h2>Whatever you’re working towards, we’re on your side.</h2>
+      </div>
+      <div class="grid grid--3">
+        {services.map((s) => (
+          <a class="card service" href={`/services/${s.slug}/`}>
+            <img src="/brand/icon.svg" alt="" width="34" height="28" />
+            <h3>{s.title}</h3>
+            <p>{s.summary}</p>
+            <span class="more">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+        <a class="card service service--cta" href="/contact/">
+          <h3>Not sure where to start?</h3>
+          <p>Tell us where you are now and what you’re working towards. We’ll take it from there.</p>
+          <span class="more">Get in touch <span aria-hidden="true">→</span></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why YourSide -->
+  <section class="section section--tint">
+    <div class="wrap why">
+      <div>
+        <span class="eyebrow">Why YourSide</span>
+        <h2>More options with an expert on your side.</h2>
+        <p>
+          Not every bank looks at things the same way. What doesn’t work for one lender might be exactly right for
+          another. We know how different lenders operate, what they’re looking for and how to present your
+          application in the best possible light.
+        </p>
+        <img class="corner" src="/brand/badge-in-your-corner-badge.png" alt="" width="200" height="200" />
+      </div>
+      <ul class="reasons">
+        <li>
+          <h3>We start by listening</h3>
+          <p>Good mortgage advice starts with understanding where you are now, where you’re heading and what might stand in the way.</p>
+        </li>
+        <li>
+          <h3>We work for you, not the bank</h3>
+          <p>We compare lenders to find a solution that fits your circumstances, then stay with you through to settlement and beyond.</p>
+        </li>
+        <li>
+          <h3>We get wins where others can’t</h3>
+          <p>Facing challenges head-on to beat expectations. Self-employed, low deposit or been turned down before? Talk to us.</p>
+        </li>
+        <li>
+          <h3>Local to Wellington</h3>
+          <p>We know the Wellington market and we’re happy to meet in person, by phone or online, whichever suits you.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Tools -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Helpful tools</span>
+        <h2>Get a feel for your numbers.</h2>
+      </div>
+      <div class="grid grid--2">
+        <a class="card tool" href="/borrowing-calculator/">
+          <h3>Borrowing calculator</h3>
+          <p>See roughly how much you could borrow, what deposit you need and what your repayments might look like.</p>
+          <span class="more">Try the calculator <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="card tool" href="/interest-rates/">
+          <h3>Interest rates</h3>
+          <p>Compare current home loan rates from New Zealand’s main lenders, then ask us which suits you best.</p>
+          <span class="more">See interest rates <span aria-hidden="true">→</span></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team -->
+  <section class="section section--tint">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Meet the team</span>
+        <h2>Real people in your corner.</h2>
+      </div>
+      <div class="team">
+        {advisers.map((a) => (
+          <a class="card person" href={`/team/${a.slug}/`}>
+            {a.photo
+              ? <img class="avatar" src={a.photo} alt="" width="96" height="96" />
+              : <span class="avatar initial" aria-hidden="true">{a.name[0]}</span>}
+            <h3>{a.name}</h3>
+            <p>{a.role}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="section">
+    <div class="wrap contact">
+      <div>
+        <span class="eyebrow">Let’s talk</span>
+        <h2>Free advice, with no pressure.</h2>
+        <p class="intro">Tell us a little about what you’re planning and the right adviser will be in touch.</p>
+        <p>Whether you’re just starting to think about buying or you’re ready to move, a quick chat is the best first step. Choose an adviser, or leave it with us and the first available person will get back to you.</p>
+      </div>
+      <ContactForm source="Home page" id="home-form" />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    background: linear-gradient(180deg, var(--uv-50), #fff);
+    padding-block: clamp(3.5rem, 9vw, 6.5rem);
+  }
+  .hero-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 3rem; align-items: center; }
+  .hero h1 { font-size: clamp(2.5rem, 6vw, 4rem); }
+  .uv { color: var(--ultraviolet); }
+  .hero .intro { max-width: 560px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+  .badge { width: min(100%, 340px); justify-self: center; }
+  @media (max-width: 820px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .badge { display: none; }
+  }
+
+  a.card { text-decoration: none; color: inherit; transition: transform 0.15s, border-color 0.15s; }
+  a.card:hover { transform: translateY(-3px); border-color: var(--ultraviolet); }
+  .service img { width: 34px; margin-bottom: 1.25rem; }
+  .more { display: inline-block; margin-top: 1rem; font-weight: 600; color: var(--ultraviolet); }
+  a.service--cta { background: var(--purple); border-color: var(--purple); color: #fff; }
+  .service--cta h3 { color: #fff; }
+  .service--cta .more { color: var(--uv-light); }
+
+  .why { display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem; align-items: start; }
+  .corner { width: 160px; margin-top: 1.5rem; }
+  .reasons { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; }
+  .reasons li { background: #fff; border-radius: var(--radius); padding: 1.5rem; border-left: 4px solid var(--ultraviolet); }
+  .reasons h3 { font-size: 1.15rem; }
+  .reasons p { margin: 0; }
+  @media (max-width: 820px) { .why { grid-template-columns: 1fr; } }
+
+  .tool { border-top: 4px solid var(--ultraviolet); }
+
+  .team { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+  .person { text-align: center; }
+  .person p { color: var(--slate-muted); }
+  .avatar { width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 1rem; object-fit: cover; }
+  .initial {
+    display: grid; place-items: center; background: var(--purple); color: #fff;
+    font: 600 2.2rem/1 var(--font-title);
+  }
+
+  .contact { display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem; align-items: start; }
+  @media (max-width: 860px) { .contact { grid-template-columns: 1fr; } }
+</style>

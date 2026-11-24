@@ -1,0 +1,79 @@
+---
+import { site } from '../data/site';
+import { services } from '../data/services';
+import { advisers } from '../data/advisers';
+const year = new Date().getFullYear();
+const socials = Object.entries(site.social).filter(([, url]) => url) as [string, string][];
+---
+
+<footer class="site-footer dark">
+  <div class="wrap cols">
+    <div class="brand">
+      <img src="/brand/logo-white.svg" alt="YourSide" width="180" height="25" />
+      <p class="tag">{site.tagline}</p>
+      <p>{site.location}</p>
+      {site.phone && <p><a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a></p>}
+      {site.email && <p><a href={`mailto:${site.email}`}>{site.email}</a></p>}
+      {socials.length > 0 && (
+        <p class="socials">
+          {socials.map(([name, url]) => <a href={url} rel="noopener">{name[0].toUpperCase() + name.slice(1)}</a>)}
+        </p>
+      )}
+    </div>
+
+    <div>
+      <h2>Home loans</h2>
+      <ul>
+        {services.map((s) => <li><a href={`/services/${s.slug}/`}>{s.title}</a></li>)}
+      </ul>
+    </div>
+
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/borrowing-calculator/">Borrowing calculator</a></li>
+        <li><a href="/interest-rates/">Interest rates</a></li>
+        <li><a href="/contact/">Contact us</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h2>Our team</h2>
+      <ul>
+        {advisers.map((a) => <li><a href={`/team/${a.slug}/`}>{a.name}</a></li>)}
+      </ul>
+    </div>
+  </div>
+
+  <div class="wrap legal">
+    <p>© {year} {site.name}{site.fspNumber && ` · FSP${site.fspNumber}`}</p>
+    <p>
+      <a href="/disclosure/">Disclosure information</a>
+      <a href="/privacy/">Privacy policy</a>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer { padding-block: 4rem 2rem; font-size: 0.95rem; }
+  .cols { display: grid; gap: 2.5rem; grid-template-columns: 1.4fr repeat(3, 1fr); }
+  @media (max-width: 860px) { .cols { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .cols { grid-template-columns: 1fr; } }
+  .brand img { width: 180px; margin-bottom: 1.25rem; }
+  .tag { font-weight: 600; color: var(--uv-light); }
+  h2 {
+    font-family: var(--font-body); font-size: 0.8rem; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--uv-light) !important;
+    margin-bottom: 1rem;
+  }
+  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+  a { color: #fff !important; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .socials a { margin-right: 1rem; }
+  .legal {
+    margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid rgb(255 255 255 / 15%);
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; font-size: 0.85rem; opacity: 0.85;
+  }
+  .legal p { margin: 0; }
+  .legal a + a { margin-left: 1.25rem; }
+</style>

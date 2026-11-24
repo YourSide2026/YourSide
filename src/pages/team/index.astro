@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { advisers } from '../../data/advisers';
+---
+
+<Base title="Meet the team" description="Meet the YourSide mortgage advisers in Wellington: Dan, Jorja, Calland and Bridie.">
+  <PageHero
+    eyebrow="Meet the team"
+    title="Real people in your corner."
+    intro="Four Wellington advisers who know how lenders think, and who’ll work hard to get your home loan across the line."
+  />
+
+  <section class="section">
+    <div class="wrap team">
+      {advisers.map((a) => (
+        <a class="card person" href={`/team/${a.slug}/`}>
+          {a.photo
+            ? <img class="avatar" src={a.photo} alt="" width="120" height="120" />
+            : <span class="avatar initial" aria-hidden="true">{a.name[0]}</span>}
+          <h2>{a.name}</h2>
+          <p class="role">{a.role}</p>
+          <ul class="tags">{a.specialties.map((s) => <li>{s}</li>)}</ul>
+          <span class="more">View profile and contact <span aria-hidden="true">→</span></span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>
+
+<style>
+  .team { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
+  .person { text-align: center; text-decoration: none; color: inherit; transition: transform 0.15s, border-color 0.15s; }
+  .person:hover { transform: translateY(-3px); border-color: var(--ultraviolet); }
+  h2 { font-size: 1.5rem; margin-bottom: 0.2rem; }
+  .role { color: var(--slate-muted); }
+  .avatar { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 1.25rem; object-fit: cover; }
+  .initial { display: grid; place-items: center; background: var(--purple); color: #fff; font: 600 2.75rem/1 var(--font-title); }
+  .tags { list-style: none; padding: 0; margin: 0 0 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
+  .tags li { background: var(--uv-50); color: var(--purple); font-size: 0.8rem; font-weight: 600; padding: 0.3rem 0.7rem; border-radius: 999px; }
+  .more { font-weight: 600; color: var(--ultraviolet); }
+</style>

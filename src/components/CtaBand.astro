@@ -1,0 +1,31 @@
+---
+interface Props {
+  title?: string;
+  text?: string;
+}
+const {
+  title = 'Throwing in the towel? We’ll catch it.',
+  text = 'Getting home loans across the line is what we do best. Talk to a YourSide adviser, at no cost to you.',
+} = Astro.props;
+---
+
+<section class="cta dark">
+  <div class="wrap inner">
+    <div>
+      <h2>{title}</h2>
+      <p>{text}</p>
+    </div>
+    <a href="/contact/" class="btn btn--light">Talk to an adviser</a>
+  </div>
+</section>
+
+<style>
+  .cta {
+    background: linear-gradient(90deg, var(--purple) 0%, rgb(58 31 94 / 92%) 55%, rgb(58 31 94 / 55%) 100%),
+      var(--purple) url('/brand/pattern-1.jpg') center / cover;
+    padding-block: clamp(3rem, 7vw, 4.5rem);
+  }
+  .inner { display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+  h2 { max-width: 620px; }
+  p { max-width: 560px; font-size: 1.1rem; opacity: 0.92; margin: 0; }
+</style>

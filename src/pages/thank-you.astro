@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+---
+
+<Base title="Thanks for getting in touch">
+  <PageHero
+    eyebrow="Message received"
+    title="Thanks, we’ve got it from here."
+    intro="One of our advisers will be in touch within one working day."
+  >
+    <p class="back"><a href="/" class="btn btn--light">Back to home</a></p>
+  </PageHero>
+</Base>
+
+<style>
+  .back { margin-top: 2rem; }
+</style>

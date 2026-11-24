@@ -1,0 +1,27 @@
+---
+// Dark purple page header with the brand line pattern.
+interface Props {
+  eyebrow?: string;
+  title: string;
+  intro?: string;
+}
+const { eyebrow, title, intro } = Astro.props;
+---
+
+<section class="page-hero dark">
+  <div class="wrap">
+    {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+    <h1>{title}</h1>
+    {intro && <p class="lede">{intro}</p>}
+    <slot />
+  </div>
+</section>
+
+<style>
+  .page-hero {
+    padding-block: clamp(3rem, 7vw, 5rem);
+    background: var(--purple) url('/brand/pattern-2.jpg') center / cover;
+  }
+  h1 { max-width: 820px; }
+  .lede { max-width: 640px; font-size: 1.2rem; font-weight: 500; opacity: 0.92; margin: 0; }
+</style>

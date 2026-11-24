@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { site } from '../data/site';
+import { advisers } from '../data/advisers';
+---
+
+<Base title="Contact us" description="Talk to a YourSide mortgage adviser in Wellington. Free, no-obligation advice on home loans, refinancing, investment and business lending.">
+  <PageHero
+    eyebrow="Contact us"
+    title="Let’s get you moving forward."
+    intro="Tell us a bit about what you’re planning. Pick an adviser, or leave it with us and the first available person will be in touch."
+  />
+
+  <section class="section">
+    <div class="wrap layout">
+      <ContactForm source="Contact page" heading="Send us a message" />
+
+      <aside>
+        <div class="card">
+          <h2>Other ways to reach us</h2>
+          <p>{site.location}</p>
+          {site.phone && <p><strong>Phone:</strong> <a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a></p>}
+          {site.email && <p><strong>Email:</strong> <a href={`mailto:${site.email}`}>{site.email}</a></p>}
+          {!site.phone && !site.email && <p class="todo">Phone number and email to be added in <code>src/data/site.ts</code>.</p>}
+        </div>
+
+        <div class="card">
+          <h2>Talk to a specific adviser</h2>
+          <ul>
+            {advisers.map((a) => <li><a href={`/team/${a.slug}/`}>{a.name}</a> <span>{a.role}</span></li>)}
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; align-items: start; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+  aside { display: grid; gap: 1.25rem; }
+  aside h2 { font-size: 1.3rem; }
+  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.6rem; }
+  li a { font-weight: 600; }
+  li span { color: var(--slate-muted); font-size: 0.9rem; margin-left: 0.35rem; }
+</style>
