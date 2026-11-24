@@ -3,6 +3,10 @@ import Base from '../layouts/Base.astro';
 import ContactForm from '../components/ContactForm.astro';
 import { services } from '../data/services';
 import { advisers } from '../data/advisers';
+import GuideCard from '../components/guides/GuideCard.astro';
+import { getGuides } from '../lib/guides';
+
+const latestGuides = (await getGuides()).slice(0, 3);
 ---
 
 <Base>
@@ -161,8 +165,26 @@ import { advisers } from '../data/advisers';
     </div>
   </section>
 
+  <!-- Latest guides -->
+  {latestGuides.length > 0 && (
+    <section class="section">
+      <div class="wrap">
+        <div class="guides-head">
+          <div class="section-head">
+            <span class="eyebrow">Guides &amp; insights</span>
+            <h2>Know more, borrow smarter.</h2>
+          </div>
+          <a class="btn btn--ghost" href="/guides/">All guides</a>
+        </div>
+        <div class="guides">
+          {latestGuides.map((g) => <GuideCard guide={g} />)}
+        </div>
+      </div>
+    </section>
+  )}
+
   <!-- Contact -->
-  <section id="contact" class="section">
+  <section id="contact" class="section section--tint">
     <div class="wrap contact">
       <div>
         <span class="eyebrow">Let’s talk</span>
@@ -287,6 +309,10 @@ import { advisers } from '../data/advisers';
     display: grid; place-items: center; background: var(--purple); color: #fff;
     font: 600 2.2rem/1 var(--font-title);
   }
+
+  .guides-head { display: flex; justify-content: space-between; align-items: end; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+  .guides-head .section-head { margin: 0; }
+  .guides { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
 
   .contact { display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem; align-items: start; }
   @media (max-width: 860px) { .contact { grid-template-columns: 1fr; } }

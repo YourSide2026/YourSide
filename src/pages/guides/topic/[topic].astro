@@ -1,0 +1,79 @@
+---
+import Base from '../../../layouts/Base.astro';
+import CtaBand from '../../../components/CtaBand.astro';
+import GuideCard from '../../../components/guides/GuideCard.astro';
+import NewsletterForm from '../../../components/guides/NewsletterForm.astro';
+import { getGuides, activeTopics, topicsOf, topicUrl } from '../../../lib/guides';
+
+// One page per topic that has at least one article (empty pages are bad for SEO)
+export async function getStaticPaths() {
+  const guides = await getGuides();
+  const topics = activeTopics(guides);
+  return topics.map((topic) => ({
+    params: { topic: topic.slug },
+    props: { topic, topics, guides: guides.filter((g) => topicsOf(g).includes(topic.slug)) },
+  }));
+}
+
+const { topic, topics, guides } = Astro.props;
+---
+
+<Base title={`${topic.name} guides`} description={`${topic.description} Guides from YourSide, Wellington mortgage advisers.`}>
+  <section class="topic-hero">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a><span aria-hidden="true">/</span><a href="/guides/">Guides</a><span aria-hidden="true">/</span><span>{topic.name}</span>
+      </nav>
+      <span class="eyebrow">Topic</span>
+      <h1>{topic.name}</h1>
+      <p class="lede">{topic.description}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <nav class="chips" aria-label="Other topics">
+        <a class="chip" href="/guides/">All guides</a>
+        {topics.map((t) => (
+          <a class="chip" href={topicUrl(t.slug)} aria-current={t.slug === topic.slug ? 'page' : undefined}>{t.name}</a>
+        ))}
+      </nav>
+      <p class="count">{guides.length} {guides.length === 1 ? 'article' : 'articles'}</p>
+      <div class="grid-guides">
+        {guides.map((g) => <GuideCard guide={g} headingLevel="h2" />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="wrap">
+      <NewsletterForm id="nl-topic" source={`Topic: ${topic.name}`} variant="band" />
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>
+
+<style>
+  .topic-hero {
+    background:
+      linear-gradient(120deg, rgb(42 22 69 / 94%) 0%, rgb(58 31 94 / 82%) 60%, rgb(74 40 120 / 75%) 100%),
+      var(--purple) url('/brand/pattern-2.jpg') center / cover;
+    color: #fff; padding-block: clamp(2rem, 5vw, 3rem) clamp(3rem, 6vw, 4rem);
+  }
+  .crumbs { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem; color: rgb(255 255 255 / 70%); margin-bottom: 2rem; }
+  .crumbs a { color: rgb(255 255 255 / 85%); text-decoration: none; }
+  .crumbs a:hover { color: #fff; text-decoration: underline; }
+  .topic-hero .eyebrow { color: var(--uv-light); }
+  .topic-hero h1 { color: #fff; }
+  .lede { max-width: 620px; font-size: 1.15rem; color: rgb(255 255 255 / 82%); margin: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .chip {
+    font-size: 0.9rem; font-weight: 500; padding: 0.55rem 0.95rem; border-radius: 999px; text-decoration: none;
+    border: 1px solid #d6cfe0; color: var(--slate); background: #fff; transition: border-color 0.15s;
+  }
+  .chip:hover { border-color: var(--ultraviolet); color: var(--slate); }
+  .chip[aria-current='page'] { background: var(--purple); border-color: var(--purple); color: #fff; }
+  .count { color: var(--slate-muted); }
+  .grid-guides { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+</style>

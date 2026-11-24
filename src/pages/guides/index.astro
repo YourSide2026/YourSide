@@ -1,0 +1,304 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import GuideCard from '../../components/guides/GuideCard.astro';
+import NewsletterForm from '../../components/guides/NewsletterForm.astro';
+import { getCategory } from '../../data/categories';
+import {
+  getGuides, getFeatured, guideUrl, topicUrl, activeTopics, readingTime, formatDate, authorOf,
+} from '../../lib/guides';
+
+const guides = await getGuides();
+const featured = getFeatured(guides);
+const topics = activeTopics(guides);
+const PAGE_SIZE = 9;
+---
+
+<Base
+  title="Mortgage guides & insights"
+  description="Plain-English mortgage guides from Wellington mortgage advisers. Home loan basics, first home buyer tips, property investing and housing market updates."
+>
+  <!-- Header with search -->
+  <section class="guides-hero">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span>Guides</span></nav>
+      <span class="eyebrow">Guides &amp; insights</span>
+      <h1>Mortgage guides for Kiwi home buyers</h1>
+      <p class="lede">Clear, practical advice on home loans, buying property and the Wellington market, written by the advisers who do this every day.</p>
+
+      <form class="search" role="search" action="/guides/" method="get" data-search-form>
+        <label class="visually-hidden" for="guide-search">Search guides</label>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" /><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+        <input id="guide-search" name="q" type="search" placeholder="Search guides, e.g. deposit, KiwiSaver, refinancing" autocomplete="off" />
+        <button class="btn" type="submit">Search</button>
+      </form>
+      {topics.length > 0 && (
+        <p class="popular">
+          <span>Popular topics:</span>
+          {topics.map((t) => <a href={topicUrl(t.slug)}>{t.name}</a>)}
+        </p>
+      )}
+    </div>
+  </section>
+
+  <!-- Feature article -->
+  {featured && (
+    <section class="section featured-wrap" data-featured-section>
+      <div class="wrap">
+        <article class="featured">
+          <a class="featured-media" href={guideUrl(featured)} tabindex="-1" aria-hidden="true">
+            <Image src={featured.data.heroImage} alt="" widths={[640, 960, 1280]} sizes="(max-width: 900px) 100vw, 640px" loading="eager" fetchpriority="high" />
+          </a>
+          <div class="featured-body">
+            <p class="featured-label"><span>Featured</span> {getCategory(featured.data.category).name}</p>
+            <h2><a href={guideUrl(featured)}>{featured.data.title}</a></h2>
+            <p class="featured-excerpt">{featured.data.description}</p>
+            <p class="meta">
+              By {authorOf(featured).name} <span aria-hidden="true">·</span>
+              <time datetime={featured.data.publishDate.toISOString()}>{formatDate(featured.data.publishDate)}</time>
+              <span aria-hidden="true">·</span> {readingTime(featured.body)} min read
+            </p>
+            <a class="btn" href={guideUrl(featured)}>Read the guide</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  )}
+
+  <!-- All articles with filter + search -->
+  <section class="section section--tint" id="latest">
+    <div class="wrap">
+      <div class="list-head">
+        <div>
+          <span class="eyebrow">Latest articles</span>
+          <h2 data-results-title>All guides</h2>
+        </div>
+        <p class="count" data-count aria-live="polite">{guides.length} {guides.length === 1 ? 'article' : 'articles'}</p>
+      </div>
+
+      <div class="chips" role="group" aria-label="Filter by topic">
+        <button type="button" class="chip" data-topic="" aria-pressed="true">All topics</button>
+        {topics.map((t) => (
+          <button type="button" class="chip" data-topic={t.slug} aria-pressed="false">{t.name} <span>{t.count}</span></button>
+        ))}
+      </div>
+
+      <div class="grid-guides" data-grid>
+        {guides.map((g) => <GuideCard guide={g} />)}
+      </div>
+
+      <div class="empty" data-empty hidden>
+        <p class="empty-title">No guides match your search.</p>
+        <p>Try a different word, or <button type="button" class="linklike" data-reset>show all guides</button>. Can’t find what you need? <a href="/contact/">Ask an adviser</a>, we’re happy to help.</p>
+      </div>
+
+      <p class="more-wrap"><button type="button" class="btn btn--ghost" data-more hidden>Show more articles</button></p>
+    </div>
+  </section>
+
+  <!-- Browse by topic -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Browse by topic</span>
+        <h2>Find guides for where you’re at.</h2>
+      </div>
+      <div class="topics">
+        {topics.map((t) => (
+          <a class="topic-card" href={topicUrl(t.slug)}>
+            <span class="topic-name">{t.name}</span>
+            <span class="topic-desc">{t.description}</span>
+            <span class="topic-count">{t.count} {t.count === 1 ? 'article' : 'articles'} <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools + newsletter -->
+  <section class="section section--tint">
+    <div class="wrap stack">
+      <div class="tools">
+        <a class="tool" href="/borrowing-calculator/">
+          <span class="tool-title">Borrowing calculator</span>
+          <span>See roughly how much you could borrow and what repayments might look like.</span>
+        </a>
+        <a class="tool" href="/interest-rates/">
+          <span class="tool-title">Interest rates</span>
+          <span>Compare current home loan rates from New Zealand’s main lenders.</span>
+        </a>
+        <a class="tool" href="/contact/">
+          <span class="tool-title">Talk to an adviser</span>
+          <span>Got a question a guide can’t answer? We’re happy to help, with no pressure.</span>
+        </a>
+      </div>
+      <NewsletterForm id="nl-guides" source="Guides page" variant="band" />
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>
+
+<script define:vars={{ PAGE_SIZE }}>
+  // Search + topic filter. Works on the cards already on the page, so it's instant.
+  const form = document.querySelector('[data-search-form]');
+  const input = document.getElementById('guide-search');
+  const chips = [...document.querySelectorAll('.chip')];
+  const cards = [...document.querySelectorAll('[data-grid] [data-guide]')];
+  const count = document.querySelector('[data-count]');
+  const title = document.querySelector('[data-results-title]');
+  const empty = document.querySelector('[data-empty]');
+  const more = document.querySelector('[data-more]');
+  const featured = document.querySelector('[data-featured-section]');
+  const params = new URLSearchParams(location.search);
+  let query = params.get('q') || '';
+  let topic = params.get('topic') || '';
+  let limit = PAGE_SIZE;
+
+  input.value = query;
+
+  function apply(scroll) {
+    const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+    const matches = cards.filter((c) => {
+      const okTopic = !topic || c.dataset.topics.split(' ').includes(topic);
+      const okText = words.every((w) => c.dataset.search.includes(w));
+      return okTopic && okText;
+    });
+    cards.forEach((c) => (c.hidden = true));
+    matches.slice(0, limit).forEach((c) => (c.hidden = false));
+
+    chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.topic === topic)));
+    const topicName = chips.find((c) => c.dataset.topic === topic && topic)?.firstChild.textContent.trim();
+    title.textContent = query ? `Results for “${query}”` : topicName || 'All guides';
+    count.textContent = `${matches.length} ${matches.length === 1 ? 'article' : 'articles'}`;
+    empty.hidden = matches.length > 0;
+    more.hidden = matches.length <= limit;
+    if (featured) featured.hidden = Boolean(query || topic);
+
+    const url = new URL(location.href);
+    query ? url.searchParams.set('q', query) : url.searchParams.delete('q');
+    topic ? url.searchParams.set('topic', topic) : url.searchParams.delete('topic');
+    history.replaceState(null, '', url);
+    if (scroll) document.getElementById('latest').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    query = input.value.trim();
+    limit = PAGE_SIZE;
+    apply(true);
+  });
+  input.addEventListener('input', () => {
+    query = input.value.trim();
+    limit = PAGE_SIZE;
+    apply(false);
+  });
+  chips.forEach((chip) =>
+    chip.addEventListener('click', () => {
+      topic = chip.dataset.topic;
+      limit = PAGE_SIZE;
+      apply(false);
+    }),
+  );
+  more.addEventListener('click', () => {
+    limit += PAGE_SIZE;
+    apply(false);
+  });
+  document.querySelector('[data-reset]').addEventListener('click', () => {
+    query = topic = '';
+    input.value = '';
+    apply(false);
+  });
+
+  apply(Boolean(query || topic));
+</script>
+
+<style>
+  .guides-hero {
+    background:
+      linear-gradient(120deg, rgb(42 22 69 / 94%) 0%, rgb(58 31 94 / 82%) 60%, rgb(74 40 120 / 75%) 100%),
+      var(--purple) url('/brand/pattern-2.jpg') center / cover;
+    color: #fff;
+    padding-block: clamp(2rem, 5vw, 3rem) clamp(3rem, 7vw, 4.5rem);
+  }
+  .crumbs { display: flex; gap: 0.5rem; font-size: 0.85rem; color: rgb(255 255 255 / 70%); margin-bottom: 2rem; }
+  .crumbs a { color: rgb(255 255 255 / 85%); text-decoration: none; }
+  .crumbs a:hover { color: #fff; text-decoration: underline; }
+  .guides-hero .eyebrow { color: var(--uv-light); }
+  .guides-hero h1 { color: #fff; max-width: 18ch; }
+  .lede { max-width: 620px; font-size: 1.15rem; color: rgb(255 255 255 / 82%); }
+
+  .search {
+    display: flex; align-items: center; gap: 0.5rem; max-width: 640px; margin-top: 2rem;
+    background: #fff; border-radius: var(--radius-sm); padding: 0.35rem 0.35rem 0.35rem 1rem; color: var(--slate-muted);
+    box-shadow: 0 20px 40px rgb(20 8 38 / 30%);
+  }
+  .search svg { flex: none; }
+  .search input { flex: 1; border: 0; padding: 0.7rem 0.25rem; box-shadow: none; min-width: 0; }
+  .search input:focus { box-shadow: none; }
+  .search:focus-within { outline: 3px solid var(--uv-light); outline-offset: 2px; }
+  .search .btn { flex: none; }
+  .popular { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 1.25rem 0 0; font-size: 0.9rem; color: rgb(255 255 255 / 70%); }
+  .popular a { color: #fff; }
+
+  /* Featured */
+  .featured-wrap[hidden] { display: none; }
+  .featured {
+    display: grid; grid-template-columns: 1.1fr 1fr; align-items: stretch;
+    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #fff;
+    box-shadow: var(--shadow);
+  }
+  .featured-media { display: block; background: var(--purple); min-height: 280px; }
+  .featured-media img { width: 100%; height: 100%; object-fit: cover; }
+  .featured-body { padding: clamp(1.5rem, 4vw, 3rem); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+  .featured-label { display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ultraviolet); margin-bottom: 1rem; }
+  .featured-label span { background: var(--purple); color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; letter-spacing: 0.1em; }
+  .featured h2 { font-size: clamp(1.5rem, 2.8vw, 2.1rem); }
+  .featured h2 a { color: var(--purple); text-decoration: none; }
+  .featured h2 a:hover { color: var(--ultraviolet); }
+  .featured-excerpt { color: var(--slate-muted); }
+  .meta { font-size: 0.9rem; color: var(--slate-muted); margin-bottom: 1.5rem; }
+  @media (max-width: 900px) { .featured { grid-template-columns: 1fr; } .featured-media { aspect-ratio: 16 / 9; min-height: 0; } }
+
+  /* List */
+  .list-head { display: flex; justify-content: space-between; align-items: end; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .list-head h2 { margin: 0; }
+  .count { color: var(--slate-muted); margin: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; }
+  .chip {
+    font: 500 0.9rem/1 var(--font-body); padding: 0.6rem 0.95rem; border-radius: 999px; cursor: pointer;
+    border: 1px solid #d6cfe0; background: #fff; color: var(--slate); transition: border-color 0.15s, background 0.15s;
+  }
+  .chip span { color: var(--slate-muted); margin-left: 0.25rem; font-size: 0.8rem; }
+  .chip:hover { border-color: var(--ultraviolet); }
+  .chip[aria-pressed='true'] { background: var(--purple); border-color: var(--purple); color: #fff; }
+  .chip[aria-pressed='true'] span { color: var(--uv-light); }
+  .grid-guides { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+  .empty { background: #fff; border: 1px dashed #cfc6dc; border-radius: var(--radius); padding: 2rem; text-align: center; }
+  .empty-title { font-weight: 600; color: var(--purple); font-size: 1.1rem; }
+  .empty p:last-child { margin: 0; }
+  .linklike { background: none; border: 0; padding: 0; font: inherit; color: var(--ultraviolet); text-decoration: underline; cursor: pointer; }
+  .more-wrap { text-align: center; margin: 2rem 0 0; }
+
+  /* Topics */
+  .topics { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+  .topic-card {
+    display: flex; flex-direction: column; gap: 0.5rem; padding: 1.5rem; text-decoration: none;
+    border: 1px solid var(--line); border-radius: var(--radius); background: #fff; color: var(--slate); transition: border-color 0.15s;
+  }
+  .topic-card:hover { border-color: var(--ultraviolet); color: var(--slate); }
+  .topic-name { font: 600 1.15rem/1.2 var(--font-title); color: var(--purple); }
+  .topic-desc { font-size: 0.92rem; color: var(--slate-muted); }
+  .topic-count { margin-top: auto; padding-top: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--ultraviolet); }
+
+  /* Tools + newsletter */
+  .stack { display: grid; gap: 2rem; }
+  .tools { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+  .tool {
+    display: grid; gap: 0.35rem; padding: 1.4rem 1.5rem; background: #fff; text-decoration: none;
+    border: 1px solid var(--line); border-radius: var(--radius); color: var(--slate-muted); font-size: 0.95rem; transition: border-color 0.15s;
+  }
+  .tool:hover { border-color: var(--ultraviolet); color: var(--slate-muted); }
+  .tool-title { font-weight: 600; color: var(--purple); font-size: 1.05rem; }
+</style>

@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+---
+
+<Base title="You’re subscribed" noindex>
+  <PageHero
+    eyebrow="Newsletter"
+    title="Thanks, you’re on the list."
+    intro="Look out for our next update in your inbox. In the meantime, there’s plenty more to read in our guides."
+  >
+    <p class="back"><a href="/guides/" class="btn btn--light">Back to guides</a></p>
+  </PageHero>
+</Base>
+
+<style>
+  .back { margin-top: 2rem; }
+</style>

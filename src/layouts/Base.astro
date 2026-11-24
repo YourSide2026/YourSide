@@ -7,12 +7,16 @@ import { site } from '../data/site';
 interface Props {
   title?: string;
   description?: string;
+  /** Social share image: a path like /og-image.jpg or a full URL */
+  image?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
 }
 
-const { title, description = site.description } = Astro.props;
+const { title, description = site.description, image = '/og-image.jpg', type = 'website', noindex = false } = Astro.props;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | ${site.tagline}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
-const ogImage = new URL('/og-image.jpg', site.url).href;
+const ogImage = new URL(image, site.url).href;
 ---
 
 <!doctype html>
@@ -23,19 +27,23 @@ const ogImage = new URL('/og-image.jpg', site.url).href;
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="alternate" type="application/rss+xml" title="YourSide guides" href="/guides/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#3a1f5e" />
     <link rel="preload" href="/fonts/Onest-Regular.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="preload" href="/fonts/Onest-SemiBold.ttf" as="font" type="font/ttf" crossorigin />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={type} />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content={image === '/og-image.jpg' ? 'summary' : 'summary_large_image'} />
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

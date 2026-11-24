@@ -22,4 +22,5 @@ export const nav = [
   { label: 'Borrowing calculator', href: '/borrowing-calculator/' },
   { label: 'Interest rates', href: '/interest-rates/' },
   { label: 'Our team', href: '/team/' },
+  { label: 'Guides', href: '/guides/' },
 ];

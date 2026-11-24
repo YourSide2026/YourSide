@@ -1,0 +1,341 @@
+---
+import { Image, getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import GuideCard from '../../components/guides/GuideCard.astro';
+import NewsletterForm from '../../components/guides/NewsletterForm.astro';
+import ShareLinks from '../../components/guides/ShareLinks.astro';
+import { site } from '../../data/site';
+import { getCategory } from '../../data/categories';
+import {
+  type Guide, getGuides, guideUrl, topicUrl, topicsOf, readingTime, formatDate, authorOf,
+} from '../../lib/guides';
+
+export async function getStaticPaths() {
+  const guides = await getGuides();
+  return guides.map((guide) => ({ params: { slug: guide.id }, props: { guide, all: guides } }));
+}
+
+interface Props {
+  guide: Guide;
+  all: Guide[];
+}
+const { guide, all } = Astro.props;
+const { data } = guide;
+const { Content, headings } = await render(guide);
+
+const toc = headings.filter((h) => h.depth === 2);
+const topic = getCategory(data.category);
+const author = authorOf(guide);
+const minutes = readingTime(guide.body);
+const pageUrl = new URL(guideUrl(guide), site.url).href;
+const others = all.filter((g) => g.id !== guide.id);
+const recent = others.slice(0, 4);
+// Related: share a topic first, then fill with the newest
+const related = [
+  ...others.filter((g) => topicsOf(g).some((t) => topicsOf(guide).includes(t))),
+  ...others,
+].filter((g, i, arr) => arr.indexOf(g) === i).slice(0, 3);
+
+const social = await getImage({ src: data.heroImage, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: data.title,
+    description: data.description,
+    image: new URL(social.src, site.url).href,
+    datePublished: data.publishDate.toISOString(),
+    dateModified: (data.updatedDate ?? data.publishDate).toISOString(),
+    author: { '@type': author.url === '/team/' ? 'Organization' : 'Person', name: author.name, url: new URL(author.url, site.url).href },
+    publisher: { '@type': 'Organization', name: site.name, url: site.url, logo: { '@type': 'ImageObject', url: new URL('/brand/logo.svg', site.url).href } },
+    mainEntityOfPage: pageUrl,
+    articleSection: topic.name,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: site.url + '/' },
+      { '@type': 'ListItem', position: 2, name: 'Guides', item: new URL('/guides/', site.url).href },
+      { '@type': 'ListItem', position: 3, name: topic.name, item: new URL(topicUrl(topic.slug), site.url).href },
+      { '@type': 'ListItem', position: 4, name: data.title },
+    ],
+  },
+];
+---
+
+<Base title={data.title} description={data.description} image={social.src} type="article">
+  <Fragment slot="head">
+    <meta property="article:published_time" content={data.publishDate.toISOString()} />
+    {data.updatedDate && <meta property="article:modified_time" content={data.updatedDate.toISOString()} />}
+    <meta property="article:section" content={topic.name} />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </Fragment>
+
+  <div class="progress" aria-hidden="true"><span data-progress></span></div>
+
+  <article>
+    <header class="post-head">
+      <div class="wrap narrow">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a><span aria-hidden="true">/</span>
+          <a href="/guides/">Guides</a><span aria-hidden="true">/</span>
+          <a href={topicUrl(topic.slug)}>{topic.name}</a>
+        </nav>
+        <a class="topic" href={topicUrl(topic.slug)}>{topic.name}</a>
+        <h1>{data.title}</h1>
+        <p class="standfirst">{data.description}</p>
+        <div class="byline">
+          <span class="avatar" aria-hidden="true">
+            <img src="/brand/icon-white.svg" alt="" width="20" height="17" />
+          </span>
+          <div>
+            <p class="by">By <a href={author.url}>{author.name}</a></p>
+            <p class="when">
+              <time datetime={data.publishDate.toISOString()}>{formatDate(data.publishDate)}</time>
+              {data.updatedDate && <> · Updated <time datetime={data.updatedDate.toISOString()}>{formatDate(data.updatedDate)}</time></>}
+              <span aria-hidden="true"> · </span>{minutes} min read
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <figure class="hero-img">
+        <Image src={data.heroImage} alt={data.heroAlt} widths={[640, 960, 1280, 1600]} sizes="(max-width: 1200px) 100vw, 1160px" loading="eager" fetchpriority="high" />
+      </figure>
+    </div>
+
+    <div class="wrap layout">
+      <div class="main">
+        {data.takeaways.length > 0 && (
+          <aside class="takeaways" aria-labelledby="takeaways-title">
+            <p class="takeaways-title" id="takeaways-title">Key takeaways</p>
+            <ul>{data.takeaways.map((t) => <li>{t}</li>)}</ul>
+          </aside>
+        )}
+
+        {toc.length > 0 && (
+          <details class="toc-mobile">
+            <summary>On this page</summary>
+            <ol>{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+          </details>
+        )}
+
+        <div class="prose" data-prose>
+          <Content />
+        </div>
+
+        <p class="disclaimer">
+          This article is general information only and isn’t financial advice. Lending criteria, rules and rates
+          change, so talk to an adviser about your own situation.
+        </p>
+
+        <div class="share-row">
+          <p>Found this useful? Share it.</p>
+          <ShareLinks url={pageUrl} title={data.title} />
+        </div>
+
+        <aside class="author-box">
+          <span class="avatar big" aria-hidden="true"><img src="/brand/icon-white.svg" alt="" width="28" height="23" /></span>
+          <div>
+            <p class="author-name"><a href={author.url}>{author.name}</a></p>
+            <p class="author-role">{author.role}</p>
+            <p>We’re a Wellington mortgage advice team that works for you, not the bank. Want help with your own home loan?</p>
+            <a class="btn" href="/contact/">Talk to an adviser</a>
+          </div>
+        </aside>
+      </div>
+
+      <aside class="sidebar" aria-label="Article tools">
+        {toc.length > 0 && (
+          <nav class="side-block toc" aria-labelledby="toc-title">
+            <p class="side-title" id="toc-title">On this page</p>
+            <ol>{toc.map((h) => <li><a href={`#${h.slug}`} data-toc-link={h.slug}>{h.text}</a></li>)}</ol>
+          </nav>
+        )}
+
+        <div class="side-block">
+          <p class="side-title">Share this article</p>
+          <ShareLinks url={pageUrl} title={data.title} />
+        </div>
+
+        <NewsletterForm id="nl-article" source={`Article: ${data.title}`} />
+
+        {recent.length > 0 && (
+          <div class="side-block">
+            <p class="side-title">Recent articles</p>
+            <ul class="recent">
+              {recent.map((g) => (
+                <li>
+                  <a href={guideUrl(g)}>
+                    <Image src={g.data.heroImage} alt="" width={128} height={72} />
+                    <span>
+                      <span class="recent-title">{g.data.title}</span>
+                      <span class="recent-date">{formatDate(g.data.publishDate)}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <a class="all-link" href="/guides/">All guides →</a>
+          </div>
+        )}
+
+        <div class="side-block side-cta">
+          <p class="side-title">Talk to an adviser</p>
+          <p>Get advice that fits your situation, at no cost to you.</p>
+          <a class="btn btn--light" href="/contact/">Get in touch</a>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  {related.length > 0 && (
+    <section class="section section--tint">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Keep reading</span>
+          <h2>Related guides</h2>
+        </div>
+        <div class="related">
+          {related.map((g) => <GuideCard guide={g} />)}
+        </div>
+      </div>
+    </section>
+  )}
+</Base>
+
+<script>
+  // Reading progress bar
+  const bar = document.querySelector<HTMLElement>('[data-progress]');
+  const prose = document.querySelector<HTMLElement>('[data-prose]');
+  if (bar && prose) {
+    const update = () => {
+      const r = prose.getBoundingClientRect();
+      const total = r.height - window.innerHeight * 0.5;
+      const done = Math.min(1, Math.max(0, (window.innerHeight * 0.5 - r.top) / total));
+      bar.style.transform = `scaleX(${done})`;
+    };
+    addEventListener('scroll', update, { passive: true });
+    update();
+  }
+
+  // Highlight the current section in "On this page"
+  const links = new Map(
+    [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')].map((a) => [a.dataset.tocLink!, a]),
+  );
+  const sections = [...document.querySelectorAll<HTMLElement>('.prose h2[id]')];
+  if (links.size && sections.length) {
+    const setActive = () => {
+      let current = sections[0].id;
+      for (const h of sections) if (h.getBoundingClientRect().top < 140) current = h.id;
+      links.forEach((a, id) => a.toggleAttribute('aria-current', id === current));
+    };
+    addEventListener('scroll', setActive, { passive: true });
+    setActive();
+  }
+</script>
+
+<style>
+  .progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 60; pointer-events: none; }
+  .progress span { display: block; height: 100%; background: var(--ultraviolet); transform-origin: 0 50%; transform: scaleX(0); }
+
+  .narrow { max-width: 860px; margin-left: auto !important; margin-right: auto; }
+  .post-head { padding-block: clamp(2rem, 5vw, 3rem) 2rem; text-align: left; }
+  .crumbs { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem; color: var(--slate-muted); margin-bottom: 1.75rem; }
+  .crumbs a { color: var(--slate-muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--ultraviolet); text-decoration: underline; }
+  .topic {
+    display: inline-block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ultraviolet); text-decoration: none; margin-bottom: 1rem;
+  }
+  h1 { font-size: clamp(2rem, 4.4vw, 3.1rem); }
+  .standfirst { font-size: 1.2rem; color: var(--slate-muted); line-height: 1.55; }
+  .byline { display: flex; align-items: center; gap: 0.85rem; margin-top: 1.5rem; }
+  .byline p { margin: 0; }
+  .avatar { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--purple); flex: none; }
+  .avatar.big { width: 64px; height: 64px; }
+  .by { font-weight: 600; color: var(--purple); }
+  .by a { color: inherit; text-decoration: none; }
+  .by a:hover { color: var(--ultraviolet); }
+  .when { font-size: 0.9rem; color: var(--slate-muted); }
+
+  .hero-img { margin: 0; border-radius: var(--radius); overflow: hidden; background: var(--purple); aspect-ratio: 16 / 7; }
+  .hero-img img { width: 100%; height: 100%; object-fit: cover; }
+
+  .layout {
+    display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: start; padding-block: clamp(2rem, 5vw, 3.5rem) clamp(3rem, 7vw, 5rem);
+  }
+  .main { max-width: 720px; }
+
+  .takeaways { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--ultraviolet); border-radius: var(--radius-sm); padding: 1.4rem 1.5rem; margin-bottom: 2rem; }
+  .takeaways-title { font-weight: 600; color: var(--purple); margin-bottom: 0.6rem; }
+  .takeaways ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.4rem; }
+
+  .toc-mobile { display: none; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0.9rem 1.1rem; margin-bottom: 2rem; }
+  .toc-mobile summary { font-weight: 600; color: var(--purple); cursor: pointer; }
+  .toc-mobile ol { margin: 0.75rem 0 0; padding-left: 1.2rem; display: grid; gap: 0.4rem; }
+
+  /* Article body (Markdown) */
+  .prose { font-size: 1.08rem; line-height: 1.75; }
+  .prose :global(h2) { font-size: clamp(1.5rem, 2.6vw, 1.85rem); margin: 2.5rem 0 0.75rem; scroll-margin-top: 100px; }
+  .prose :global(h3) { font-size: 1.2rem; margin: 1.75rem 0 0.5rem; scroll-margin-top: 100px; }
+  .prose :global(p), .prose :global(ul), .prose :global(ol) { margin: 0 0 1.15rem; }
+  .prose :global(li) { margin-bottom: 0.35rem; }
+  .prose :global(li::marker) { color: var(--ultraviolet); }
+  .prose :global(strong) { color: var(--purple); font-weight: 600; }
+  .prose :global(a) { color: var(--ultraviolet); }
+  .prose :global(table) { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2rem; font-size: 0.95rem; display: block; overflow-x: auto; }
+  .prose :global(th), .prose :global(td) { text-align: left; padding: 0.75rem 0.9rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .prose :global(thead th) { background: var(--purple); color: #fff; font-weight: 600; }
+  .prose :global(thead th:first-child) { border-top-left-radius: var(--radius-sm); }
+  .prose :global(thead th:last-child) { border-top-right-radius: var(--radius-sm); }
+  .prose :global(tbody tr:nth-child(even)) { background: var(--surface); }
+  .prose :global(blockquote) { margin: 1.5rem 0; padding: 0.25rem 0 0.25rem 1.25rem; border-left: 3px solid var(--ultraviolet); color: var(--purple); font-size: 1.15rem; }
+
+  .disclaimer { font-size: 0.85rem; color: var(--slate-muted); border-top: 1px solid var(--line); padding-top: 1.25rem; margin-top: 2.5rem; }
+  .share-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 1.25rem 0; border-block: 1px solid var(--line); margin: 1.5rem 0 2rem; }
+  .share-row p { margin: 0; font-weight: 600; color: var(--purple); }
+  .author-box { display: flex; gap: 1.25rem; align-items: flex-start; background: var(--surface); border-radius: var(--radius); padding: 1.75rem; }
+  .author-name { font-weight: 600; font-size: 1.1rem; margin: 0; }
+  .author-name a { color: var(--purple); text-decoration: none; }
+  .author-role { color: var(--slate-muted); font-size: 0.9rem; }
+
+  /* Sidebar */
+  .sidebar { align-self: stretch; display: flex; flex-direction: column; gap: 1.25rem; }
+  .side-block { border: 1px solid var(--line); border-radius: var(--radius); padding: 1.4rem; background: #fff; }
+  .side-title { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate-muted); margin: 0 0 0.9rem; }
+  .toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; }
+  .toc a {
+    display: block; padding: 0.35rem 0 0.35rem 0.85rem; border-left: 2px solid var(--line);
+    color: var(--slate); text-decoration: none; font-size: 0.92rem; line-height: 1.4;
+  }
+  .toc a:hover { color: var(--ultraviolet); }
+  .toc a[aria-current] { border-left-color: var(--ultraviolet); color: var(--purple); font-weight: 600; }
+  .recent { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+  .recent a { display: grid; grid-template-columns: 64px 1fr; gap: 0.8rem; align-items: start; text-decoration: none; }
+  .recent img { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; }
+  .recent-title { display: block; font-weight: 600; color: var(--purple); font-size: 0.9rem; line-height: 1.35; }
+  .recent a:hover .recent-title { color: var(--ultraviolet); }
+  .recent-date { display: block; font-size: 0.8rem; color: var(--slate-muted); margin-top: 0.2rem; }
+  .all-link { display: inline-block; margin-top: 1rem; font-weight: 600; font-size: 0.9rem; text-decoration: none; }
+  .side-cta { background: var(--purple); border-color: var(--purple); color: #fff; position: sticky; top: 100px; }
+  .side-cta .side-title { color: var(--uv-light); }
+  .side-cta p:not(.side-title) { font-size: 0.95rem; color: rgb(255 255 255 / 85%); }
+
+  .related { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    .main { max-width: none; }
+    .side-cta { position: static; }
+    .toc { display: none; }
+    .toc-mobile { display: block; }
+    .hero-img { aspect-ratio: 16 / 9; }
+  }
+</style>
