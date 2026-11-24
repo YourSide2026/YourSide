@@ -1,0 +1,29 @@
+---
+// The YourSide logo, drawn inline as vector shapes so it stays sharp at any size.
+// The height is a whole number of pixels so it lines up with the screen's pixel grid.
+import colour from '../../public/brand/logo.svg?raw';
+import white from '../../public/brand/logo-white.svg?raw';
+
+interface Props {
+  variant?: 'colour' | 'white';
+  height?: number;
+}
+const { variant = 'colour', height = 30 } = Astro.props;
+
+// viewBox is 676.37 × 93.36
+const width = Math.round((height * 676.3685) / 93.3578);
+const svg = (variant === 'white' ? white : colour)
+  .replace(/<\?xml[^>]*\?>/, '')
+  .replace(
+    '<svg ',
+    `<svg width="${width}" height="${height}" role="img" aria-label="YourSide" focusable="false" shape-rendering="geometricPrecision" `,
+  )
+  .replace(/ id="[^"]*"/g, '');
+---
+
+<span class="logo-mark" set:html={svg} />
+
+<style>
+  .logo-mark { display: inline-flex; line-height: 0; }
+  .logo-mark :global(svg) { max-width: none; height: auto; }
+</style>

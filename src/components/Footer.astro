@@ -1,5 +1,6 @@
 ---
 import { site } from '../data/site';
+import Logo from './Logo.astro';
 import { services } from '../data/services';
 import { advisers } from '../data/advisers';
 const year = new Date().getFullYear();
@@ -9,7 +10,7 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [string,
 <footer class="site-footer dark">
   <div class="wrap cols">
     <div class="brand">
-      <img src="/brand/logo-white.svg" alt="YourSide" width="180" height="25" />
+      <a href="/" class="footer-logo" aria-label="YourSide home"><Logo variant="white" height={28} /></a>
       <p class="tag">{site.tagline}</p>
       <p>{site.location}</p>
       {site.phone && <p><a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a></p>}
@@ -59,7 +60,7 @@ const socials = Object.entries(site.social).filter(([, url]) => url) as [string,
   .cols { display: grid; gap: 2.5rem; grid-template-columns: 1.4fr repeat(3, 1fr); }
   @media (max-width: 860px) { .cols { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 520px) { .cols { grid-template-columns: 1fr; } }
-  .brand img { width: 180px; margin-bottom: 1.25rem; }
+  .footer-logo { display: inline-flex; margin-bottom: 1.25rem; }
   .tag { font-weight: 600; color: var(--uv-light); }
   h2 {
     font-family: var(--font-body); font-size: 0.8rem; font-weight: 600;
