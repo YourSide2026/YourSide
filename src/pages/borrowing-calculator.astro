@@ -201,7 +201,7 @@ import { calculator } from '../data/calculator';
 </script>
 
 <style>
-  .calc { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; align-items: start; }
+  .calc { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; align-items: stretch; }
   @media (max-width: 860px) { .calc { grid-template-columns: 1fr; } }
 
   fieldset { border: 0; padding: 0; margin: 0 0 1.25rem; }
@@ -225,7 +225,7 @@ import { calculator } from '../data/calculator';
   .advanced summary { cursor: pointer; color: var(--ultraviolet); font-weight: 600; font-size: 0.95rem; margin-bottom: 0.75rem; }
 
   .results {
-    position: sticky; top: 96px;
+    display: flex; flex-direction: column; align-items: flex-start;
     border-radius: var(--radius); padding: 2rem;
     background: var(--purple) url('/brand/pattern-2.jpg') center / cover;
   }
@@ -234,10 +234,12 @@ import { calculator } from '../data/calculator';
   dl { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0 0 1.5rem; padding: 1.25rem 0; border-block: 1px solid rgb(255 255 255 / 18%); }
   dt { font-size: 0.85rem; opacity: 0.85; }
   dd { margin: 0; font-weight: 600; font-size: 1.2rem; }
+  .results dl, .results .verdict { align-self: stretch; }
+  .results .btn { margin-top: auto; }
   .verdict { background: rgb(255 255 255 / 10%); border-radius: var(--radius-sm); padding: 1rem; font-size: 0.95rem; }
 
   .small { font-size: 0.85rem; color: var(--slate-muted); max-width: 820px; margin-top: 2rem; }
 
   .contact { display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem; align-items: start; }
-  @media (max-width: 860px) { .contact { grid-template-columns: 1fr; } .results { position: static; } }
+  @media (max-width: 860px) { .contact { grid-template-columns: 1fr; } }
 </style>

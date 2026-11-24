@@ -34,10 +34,10 @@ export const advisers: Adviser[] = [
     email: null,
   },
   {
-    slug: 'calland',
-    name: 'Calland',
+    slug: 'callan',
+    name: 'Callan',
     role: 'Mortgage Adviser',
-    bio: ['Profile coming soon. Calland’s full “meet the team” profile will be added here before launch.'],
+    bio: ['Profile coming soon. Callan’s full “meet the team” profile will be added here before launch.'],
     specialties: ['Investment', 'Business lending', 'Refinancing'],
     photo: null,
     phone: null,
