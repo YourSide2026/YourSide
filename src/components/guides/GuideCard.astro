@@ -44,15 +44,14 @@ const searchText = [
 <style>
   .guide-card {
     position: relative; display: flex; flex-direction: column;
-    background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
-    transition: border-color 0.15s;
   }
-  .guide-card:hover { border-color: var(--ultraviolet); }
-  .media { display: block; aspect-ratio: 16 / 9; overflow: hidden; background: var(--purple); }
-  .media img { width: 100%; height: 100%; object-fit: cover; }
-  .body { display: flex; flex-direction: column; flex: 1; padding: 1.25rem 1.4rem 1.4rem; }
-  .topic { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ultraviolet); margin-bottom: 0.6rem; }
-  .title { font-size: 1.15rem; line-height: 1.3; margin: 0 0 0.6rem; }
+  .media { display: block; aspect-ratio: 3 / 2; overflow: hidden; background: var(--purple); border-radius: var(--radius-sm); }
+  .media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+  .guide-card:hover .media img { transform: scale(1.03); }
+  .body { display: flex; flex-direction: column; flex: 1; padding-top: 1.1rem; }
+  .topic { font-size: 0.88rem; font-weight: 500; color: var(--ultraviolet); margin-bottom: 0.4rem; }
+  .title { font-size: 1.3rem; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; margin: 0 0 0.6rem; }
+  .guide-card:hover .title a { color: var(--ultraviolet); }
   .title a { color: var(--purple); text-decoration: none; }
   /* Make the whole card clickable */
   .title a::after { content: ''; position: absolute; inset: 0; }

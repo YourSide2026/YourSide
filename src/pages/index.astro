@@ -2,188 +2,171 @@
 import Base from '../layouts/Base.astro';
 import ContactForm from '../components/ContactForm.astro';
 import { services } from '../data/services';
-import { advisers } from '../data/advisers';
+import { advisers, telHref } from '../data/advisers';
 import GuideCard from '../components/guides/GuideCard.astro';
 import { tools, toolUrl } from '../data/tools';
 import { getGuides } from '../lib/guides';
 
 const latestGuides = (await getGuides()).slice(0, 3);
+import { companyProfile } from '../data/reviews';
+
+// The four core actions across the bottom of the header
+const actions = [
+  { title: 'Talk to an adviser', text: 'Free, no-pressure advice from a Wellington mortgage adviser.', href: '/contact/', cta: 'Get in touch' },
+  { title: 'How much can I borrow?', text: 'Your rough borrowing power, deposit and repayments in under a minute.', href: '/calculators/how-much-can-i-borrow/', cta: 'Use the calculator' },
+  { title: 'Ready to buy your first home?', text: 'Six quick questions to see where you stand and what’s in the way.', href: '/check/ready-to-buy/', cta: 'Take the 60-second check' },
+  { title: 'Could you be paying less?', text: 'See whether switching lenders or refixing could save you money.', href: '/calculators/refinance-savings/', cta: 'Check your mortgage' },
+];
 ---
 
 <Base>
-  <!-- Hero: deep purple with slow-moving brand shapes behind the text -->
+  <!-- Hero: headline, proof, then the four core actions -->
   <section class="hero">
-    <div class="hero-bg" aria-hidden="true">
-      <span class="glow glow--1"></span>
-      <span class="glow glow--2"></span>
-      <span class="glow glow--3"></span>
-      <svg class="rings" viewBox="0 0 600 600">
-        <circle cx="300" cy="300" r="290" />
-        <circle cx="300" cy="300" r="230" stroke-dasharray="2 10" />
-        <circle cx="300" cy="300" r="170" />
-      </svg>
-      <img class="mark" src="/brand/icon-white.svg" alt="" width="420" height="350" />
+    <svg class="mark" viewBox="0 0 115 94" aria-hidden="true">
+      <path d="M114.15 71.28c0-11.88-9.63-21.52-21.52-21.52s-21.52 9.63-21.52 21.52 9.63 21.52 21.52 21.52 21.52-9.63 21.52-21.52" />
+      <path d="M106.6 4.02c.85-1.22.56-2.2-.66-2.2H73.47c-1.22 0-2.9.99-3.75 2.2L53.25 27.54c-1.04 1.39-2.65 3.2-5.46 2.32-3.39-1.06-3-7.61-3.92-12.18-.47-2.34-2.09-6.4-3.41-8.22C30.33-4.8 7.08-1.74 1.33 14.81c-5.44 14.82 6.53 30.43 22.25 29.35 7.23-.49 13.62-5.33 16.76-2.39.63.59 1.43 2.32.2 3.91L9.91 89.43c-.85 1.22-.56 2.2.66 2.2h32.47c1.22 0 2.9-.99 3.75-2.2L106.6 4.02Z" />
+    </svg>
+
+    <div class="wrap hero-top">
+      <h1 class="rise" style="--d:0ms">A better way forward starts with <span class="accent">YourSide.</span></h1>
+      <div class="hero-side rise" style="--d:120ms">
+        <p class="lede">
+          Buying a home, investing in property or securing business finance can feel overwhelming. We make it easier
+          to understand your options and move towards what matters to you.
+        </p>
+        <div class="proof">
+          {companyProfile && (
+            <a class="rating" href={companyProfile.url} target="_blank" rel="noopener">
+              <strong>{companyProfile.rating.toFixed(1)}</strong>
+              <span class="stars" aria-hidden="true">★★★★★</span>
+              <span>from {companyProfile.count} Google reviews</span>
+            </a>
+          )}
+          <ul class="awards" aria-label="Awards">
+            <li><img src="/awards/moneyhub-2026.svg" alt="MoneyHub 2026 Favourite Nationwide Mortgage Adviser, Editor’s Choice" width="72" height="72" /></li>
+            <li><img src="/awards/moneyhub-2025.svg" alt="MoneyHub 2025 Favourite Nationwide Mortgage Adviser, Editor’s Choice" width="72" height="72" /></li>
+            <li class="wreath"><img src="/awards/loan-market-2022.png" alt="Loan Market Awards 2022 Winner, #1 International Top 20 Businesses" width="72" height="72" /></li>
+          </ul>
+        </div>
+      </div>
     </div>
 
-    <div class="wrap hero-grid">
-      <div class="hero-copy">
-        <span class="eyebrow rise" style="--d:0ms">Wellington mortgage advisers</span>
-        <h1 class="rise" style="--d:80ms">A better way forward starts with <span class="accent">YourSide.</span></h1>
-        <p class="lede rise" style="--d:160ms">
-          Buying a home, investing in property or securing business finance can feel overwhelming. We make it
-          easier to understand your options, make confident decisions and move towards what matters to you.
-        </p>
-        <div class="actions rise" style="--d:240ms">
-          <a href="/contact/" class="btn btn--light">Talk to an adviser</a>
-          <a href="/calculators/how-much-can-i-borrow/" class="btn btn--outline-light">How much can I borrow?</a>
-        </div>
-        <ul class="trust rise" style="--d:320ms">
-          <li>Advice at no cost to you</li>
-          <li>We compare lenders for you</li>
-          <li>With you through to settlement</li>
-        </ul>
-        <ul class="awards rise" style="--d:400ms" aria-label="Awards">
-          <li><img src="/awards/moneyhub-2026.svg" alt="MoneyHub 2026 Favourite Nationwide Mortgage Adviser, Editor’s Choice" width="84" height="84" /></li>
-          <li><img src="/awards/moneyhub-2025.svg" alt="MoneyHub 2025 Favourite Nationwide Mortgage Adviser, Editor’s Choice" width="84" height="84" /></li>
-          <li class="wreath"><img src="/awards/loan-market-2022.png" alt="Loan Market Awards 2022 Winner, #1 International Top 20 Businesses" width="84" height="84" /></li>
-        </ul>
-      </div>
-
-      <nav class="quick rise" style="--d:200ms" aria-label="What are you looking to do?">
-        <p class="quick-title">What are you looking to do?</p>
+    <div class="wrap">
+      <nav class="core rise" style="--d:240ms" aria-label="Get started">
         <ul>
-          {services.map((s) => (
+          {actions.map((a) => (
             <li>
-              <a href={`/services/${s.slug}/`}>
-                <span>{s.title}</span>
-                <span class="arrow" aria-hidden="true">→</span>
+              <a href={a.href}>
+                <span class="core-title">{a.title}</span>
+                <span class="core-text">{a.text}</span>
+                <span class="core-cta">{a.cta}</span>
               </a>
             </li>
           ))}
         </ul>
       </nav>
     </div>
-
-    <svg class="curve" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 80V40C240 8 480 0 720 12s480 40 720 20v48z" />
-    </svg>
   </section>
 
-  <!-- Services -->
+  <!-- Services: an index, not a card grid -->
   <section id="services" class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">How we can help</span>
-        <h2>Whatever you’re working towards, we’re on your side.</h2>
+    <div class="wrap split">
+      <div class="split-head">
+        <h2>How we help</h2>
+        <p>From your first home to your fifth property, we find lending that fits your life, then stay with you to settlement and beyond.</p>
+        <p><a class="text-link" href="/contact/">Not sure where to start? Talk to us</a></p>
       </div>
-      <div class="grid grid--3">
+      <ol class="index">
         {services.map((s) => (
-          <a class="card service" href={`/services/${s.slug}/`}>
-            <img src="/brand/icon.svg" alt="" width="34" height="28" />
-            <h3>{s.title}</h3>
-            <p>{s.summary}</p>
-            <span class="more">Learn more <span aria-hidden="true">→</span></span>
-          </a>
+          <li>
+            <a href={`/services/${s.slug}/`}>
+              <span class="index-title">{s.title}</span>
+              <span class="index-text">{s.summary}</span>
+              <svg class="index-arrow" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+            </a>
+          </li>
         ))}
-        <a class="card service service--cta" href="/contact/">
-          <h3>Not sure where to start?</h3>
-          <p>Tell us where you are now and what you’re working towards. We’ll take it from there.</p>
-          <span class="more">Get in touch <span aria-hidden="true">→</span></span>
-        </a>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Why YourSide: one strong statement, four plain points -->
+  <section class="section section--tint">
+    <div class="wrap">
+      <div class="statement">
+        <p class="big-quote">Not every bank looks at things the same way. What doesn’t work for one lender might be exactly right for another.</p>
+        <img class="corner" src="/brand/badge-in-your-corner-badge.png" alt="" width="140" height="140" />
+      </div>
+      <div class="points">
+        <div>
+          <h3>We start by listening</h3>
+          <p>Good mortgage advice starts with understanding where you are now, where you’re heading and what might stand in the way.</p>
+        </div>
+        <div>
+          <h3>We work for you</h3>
+          <p>We compare lenders to find a solution that fits your circumstances, and present your application in the best possible light.</p>
+        </div>
+        <div>
+          <h3>We get wins where others can’t</h3>
+          <p>Self-employed, low deposit or been turned down before? Different lenders see things differently. Talk to us.</p>
+        </div>
+        <div>
+          <h3>Local to Wellington</h3>
+          <p>We know the Wellington market and we’re happy to meet in person, by phone or online, whichever suits you.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Why YourSide -->
-  <section class="section section--tint">
-    <div class="wrap why">
-      <div>
-        <span class="eyebrow">Why YourSide</span>
-        <h2>More options with an expert on your side.</h2>
-        <p>
-          Not every bank looks at things the same way. What doesn’t work for one lender might be exactly right for
-          another. We know how different lenders operate, what they’re looking for and how to present your
-          application in the best possible light.
-        </p>
-        <img class="corner" src="/brand/badge-in-your-corner-badge.png" alt="" width="200" height="200" />
+  <!-- Calculators -->
+  <section class="section">
+    <div class="wrap">
+      <div class="row-head">
+        <div>
+          <h2>Calculators</h2>
+          <p class="sub">Rough numbers in under a minute. No sign-up and no credit check.</p>
+        </div>
+        <a class="text-link" href="/calculators/">See all calculators</a>
       </div>
-      <ul class="reasons">
-        <li>
-          <h3>We start by listening</h3>
-          <p>Good mortgage advice starts with understanding where you are now, where you’re heading and what might stand in the way.</p>
-        </li>
-        <li>
-          <h3>We work for you, not the bank</h3>
-          <p>We compare lenders to find a solution that fits your circumstances, then stay with you through to settlement and beyond.</p>
-        </li>
-        <li>
-          <h3>We get wins where others can’t</h3>
-          <p>Facing challenges head-on to beat expectations. Self-employed, low deposit or been turned down before? Talk to us.</p>
-        </li>
-        <li>
-          <h3>Local to Wellington</h3>
-          <p>We know the Wellington market and we’re happy to meet in person, by phone or online, whichever suits you.</p>
-        </li>
+      <ul class="tools">
+        {tools.map((t) => (
+          <li><a href={toolUrl(t.slug)}><span class="tool-q">{t.title}</span><span class="tool-name">{t.name}</span></a></li>
+        ))}
+        <li><a href="/interest-rates/"><span class="tool-q">What are banks charging?</span><span class="tool-name">Interest rates</span></a></li>
       </ul>
     </div>
   </section>
 
-  <!-- Tools -->
-  <section class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">Helpful tools</span>
-        <h2>Get a feel for your numbers.</h2>
-      </div>
-      <div class="grid grid--3">
-        {tools.map((t) => (
-          <a class="card tool" href={toolUrl(t.slug)}>
-            <h3>{t.title}</h3>
-            <p>{t.blurb}</p>
-            <span class="more">{t.name} <span aria-hidden="true">→</span></span>
-          </a>
-        ))}
-        <a class="card tool" href="/interest-rates/">
-          <h3>What are banks charging?</h3>
-          <p>Compare current home loan rates from New Zealand’s main lenders, then ask us which suits you best.</p>
-          <span class="more">Interest rates <span aria-hidden="true">→</span></span>
-        </a>
-      </div>
-      <p class="all-tools"><a class="btn btn--ghost" href="/calculators/">All calculators</a></p>
-    </div>
-  </section>
-
-  <!-- Team -->
+  <!-- Team: portraits, not cards -->
   <section class="section section--tint">
     <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">Meet the team</span>
-        <h2>Real people in your corner.</h2>
+      <div class="row-head">
+        <h2>The team</h2>
+        <a class="text-link" href="/team/">Meet everyone</a>
       </div>
-      <div class="team">
+      <ul class="people">
         {advisers.map((a) => (
-          <a class="card person" href={`/team/${a.slug}/`}>
-            {a.photo
-              ? <img class="avatar" src={a.photo} alt="" width="96" height="96" />
-              : <span class="avatar initial" aria-hidden="true">{a.name[0]}</span>}
-            <h3>{a.name}</h3>
-            <p>{a.role}</p>
-          </a>
+          <li>
+            <a href={`/team/${a.slug}/`}>
+              <span class="portrait">
+                {a.photo ? <img src={a.photo} alt="" width="480" height="480" loading="lazy" /> : <span class="letter" aria-hidden="true">{a.name[0]}</span>}
+              </span>
+              <span class="who">{a.fullName}</span>
+              <span class="what">{a.role}</span>
+            </a>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   </section>
 
-  <!-- Latest guides -->
+  <!-- Guides -->
   {latestGuides.length > 0 && (
     <section class="section">
       <div class="wrap">
-        <div class="guides-head">
-          <div class="section-head">
-            <span class="eyebrow">Guides &amp; insights</span>
-            <h2>Know more, borrow smarter.</h2>
-          </div>
-          <a class="btn btn--ghost" href="/guides/">All guides</a>
+        <div class="row-head">
+          <h2>Guides</h2>
+          <a class="text-link" href="/guides/">All guides</a>
         </div>
         <div class="guides">
           {latestGuides.map((g) => <GuideCard guide={g} />)}
@@ -196,10 +179,14 @@ const latestGuides = (await getGuides()).slice(0, 3);
   <section id="contact" class="section section--tint">
     <div class="wrap contact">
       <div>
-        <span class="eyebrow">Let’s talk</span>
-        <h2>Free advice, with no pressure.</h2>
-        <p class="intro">Tell us a little about what you’re planning and the right adviser will be in touch.</p>
-        <p>Whether you’re just starting to think about buying or you’re ready to move, a quick chat is the best first step. Choose an adviser, or leave it with us and the first available person will get back to you.</p>
+        <h2>Talk to us</h2>
+        <p class="intro">Tell us a little about what you’re planning and the right adviser will be in touch, usually within one working day.</p>
+        <p>Prefer to pick up the phone? Call an adviser directly.</p>
+        <ul class="phones">
+          {advisers.filter((a) => a.phone).map((a) => (
+            <li><a href={`/team/${a.slug}/`}>{a.fullName}</a><a class="tel" href={telHref(a.phone!)}>{a.phone}</a></li>
+          ))}
+        </ul>
       </div>
       <ContactForm source="Home page" id="home-form" />
     </div>
@@ -208,128 +195,136 @@ const latestGuides = (await getGuides()).slice(0, 3);
 
 <style>
   /* ---------- Hero ---------- */
-  .hero {
-    position: relative; isolation: isolate; overflow: hidden;
-    background: linear-gradient(135deg, var(--purple-dark) 0%, var(--purple) 55%, #4a2878 100%);
-    color: #fff;
-    padding-block: clamp(4rem, 9vw, 7rem) clamp(5.5rem, 11vw, 8.5rem);
-  }
-  .hero h1 { color: #fff; font-size: clamp(2.4rem, 5.4vw, 3.9rem); max-width: 15ch; }
-  .hero .eyebrow { color: var(--uv-light); }
+  /* Purple top, paper below: the action panel sits across the join */
+  .hero { position: relative; overflow: hidden; background: linear-gradient(var(--purple) 0 calc(100% - 7rem), var(--white) calc(100% - 7rem)); color: #fff; padding-top: clamp(3.5rem, 8vw, 6.5rem); }
+  .mark { position: absolute; top: -8%; right: -6%; width: min(52vw, 640px); fill: #452a6c; pointer-events: none; transform-origin: 60% 50%; animation: sway 18s ease-in-out infinite alternate; }
+
+  .hero-top { position: relative; display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(2rem, 6vw, 5rem); align-items: end; }
+  .hero h1 { color: #fff; font-size: clamp(2.8rem, 6.6vw, 5.4rem); line-height: 1; max-width: 11ch; margin: 0; }
   .accent { color: var(--uv-light); }
-  .lede { max-width: 560px; font-size: 1.15rem; line-height: 1.65; color: rgb(255 255 255 / 82%); margin-top: 1.25rem; }
-  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+  .lede { font-size: 1.12rem; line-height: 1.65; color: rgb(255 255 255 / 84%); margin: 0; max-width: 32rem; }
+  .proof { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid rgb(255 255 255 / 18%); }
+  .rating { display: flex; align-items: baseline; gap: 0.5rem; color: #fff; text-decoration: none; font-size: 0.95rem; }
+  .rating strong { font: 500 1.6rem/1 var(--font-title); }
+  .rating .stars { color: #f5c04a; letter-spacing: 0.08em; }
+  .awards { list-style: none; padding: 0; margin: 0; display: flex; align-items: center; gap: 0.9rem; }
+  .awards img { width: 72px; height: 72px; object-fit: contain; }
+  .awards .wreath img { width: 82px; height: 82px; margin-block: -5px; }
 
-  .trust {
-    list-style: none; padding: 0; margin: 2.25rem 0 0;
-    display: flex; flex-wrap: wrap; gap: 0.6rem 1.75rem;
-    font-size: 0.92rem; color: rgb(255 255 255 / 78%);
+  /* Core actions: one panel, divided by hairlines */
+  .core { position: relative; margin-top: clamp(3rem, 6vw, 4.5rem); }
+  .core ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: var(--radius-sm); overflow: hidden; outline: 1px solid var(--line); }
+  .core li + li { border-left: 1px solid var(--line); }
+  .core a { display: flex; flex-direction: column; height: 100%; min-height: 230px; padding: 1.75rem 1.5rem 1.5rem; text-decoration: none; color: var(--slate); transition: background 0.2s, color 0.2s; }
+  .core-title { font: 500 clamp(1.3rem, 1.9vw, 1.6rem)/1.15 var(--font-title); letter-spacing: -0.02em; color: var(--purple); }
+  .core-text { margin-top: 0.75rem; font-size: 0.95rem; color: var(--slate-muted); }
+  .core-cta { margin-top: auto; padding-top: 1.25rem; font-weight: 500; color: var(--purple); text-decoration: underline; text-decoration-color: var(--ultraviolet); text-decoration-thickness: 1.5px; text-underline-offset: 5px; }
+  .core li:first-child a { background: var(--ultraviolet); }
+  .core li:first-child .core-title, .core li:first-child .core-cta { color: #fff; }
+  .core li:first-child .core-text { color: rgb(255 255 255 / 85%); }
+  .core li:first-child .core-cta { text-decoration-color: #fff; }
+  .core a:hover { background: var(--paper); }
+  .core a:hover .core-title { color: var(--ultraviolet); }
+  .core li:first-child a:hover { background: var(--purple); }
+  .core li:first-child a:hover .core-title { color: #fff; }
+
+  @keyframes sway { from { transform: rotate(-2deg); } to { transform: rotate(2deg) translateY(12px); } }
+  .rise { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+  @media (prefers-reduced-motion: reduce) { .mark, .rise { animation: none; } }
+
+  @media (max-width: 960px) {
+    .hero-top { grid-template-columns: 1fr; align-items: start; }
+    .core ul { grid-template-columns: 1fr 1fr; }
+    .core li:nth-child(3) { border-left: 0; }
+    .core li:nth-child(n + 3) { border-top: 1px solid var(--line); }
+    .mark { width: 80vw; top: -4%; right: -30%; }
   }
-  .trust li { display: flex; align-items: center; gap: 0.5rem; }
-  .trust li::before {
-    content: ''; width: 16px; height: 16px; flex: none; border-radius: 50%;
-    background: var(--ultraviolet) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 8.2l2.2 2.2 4.8-4.8' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px;
-  }
-
-  .awards { list-style: none; padding: 0; margin: 2rem 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem; }
-  .awards img { width: 84px; height: 84px; object-fit: contain; filter: drop-shadow(0 6px 14px rgb(0 0 0 / 30%)); }
-  .awards .wreath img { width: 96px; height: 96px; margin-block: -6px; }
-  @media (max-width: 480px) { .awards { gap: 1rem; } .awards img { width: 72px; height: 72px; } }
-
-  .hero-grid { position: relative; display: grid; grid-template-columns: 1.35fr 1fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
-
-  /* Quick links panel */
-  .quick {
-    background: rgb(255 255 255 / 97%); color: var(--slate);
-    border-radius: var(--radius); padding: 1.5rem 1.5rem 0.75rem;
-    box-shadow: 0 30px 60px rgb(20 8 38 / 35%);
-  }
-  .quick-title { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--slate-muted); margin: 0 0 0.5rem; }
-  .quick ul { list-style: none; padding: 0; margin: 0; }
-  .quick li + li { border-top: 1px solid var(--line); }
-  .quick a {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0.95rem 0.25rem; text-decoration: none; color: var(--purple); font-weight: 600;
-  }
-  .quick .arrow { color: var(--ultraviolet); transition: transform 0.2s; }
-  .quick a:hover { color: var(--ultraviolet); }
-  .quick a:hover .arrow { transform: translateX(4px); }
-
-  /* Moving background shapes */
-  .hero-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-  .glow { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.55; will-change: transform; }
-  .glow--1 { width: 520px; height: 520px; background: var(--ultraviolet); top: -180px; right: -120px; animation: drift-a 22s ease-in-out infinite alternate; }
-  .glow--2 { width: 420px; height: 420px; background: #6b2fc4; bottom: -200px; left: -140px; opacity: 0.5; animation: drift-b 26s ease-in-out infinite alternate; }
-  .glow--3 { width: 300px; height: 300px; background: #c4a0fb; top: 40%; left: 45%; opacity: 0.18; animation: drift-c 30s ease-in-out infinite alternate; }
-  .rings {
-    position: absolute; width: 760px; right: -220px; top: 50%; translate: 0 -50%;
-    fill: none; stroke: rgb(255 255 255 / 9%); stroke-width: 1;
-    animation: spin 90s linear infinite;
-  }
-  .mark { position: absolute; width: 380px; right: 4%; bottom: -60px; opacity: 0.05; animation: float 14s ease-in-out infinite alternate; }
-
-  .curve { position: absolute; left: 0; bottom: -1px; width: 100%; height: clamp(40px, 6vw, 80px); fill: #fff; }
-
-  @keyframes drift-a { to { transform: translate(-160px, 120px) scale(1.15); } }
-  @keyframes drift-b { to { transform: translate(180px, -90px) scale(1.2); } }
-  @keyframes drift-c { to { transform: translate(-220px, -60px) scale(0.85); } }
-  @keyframes spin { to { rotate: 360deg; } }
-  @keyframes float { to { transform: translateY(-30px) rotate(-4deg); } }
-
-  /* Text eases up into place on page load */
-  .rise { animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
-  @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
-
-  @media (prefers-reduced-motion: reduce) {
-    .glow, .rings, .mark, .rise { animation: none; }
-  }
-  @media (max-width: 900px) {
-    .hero-grid { grid-template-columns: 1fr; }
-    .rings { width: 520px; right: -260px; }
+  @media (max-width: 560px) {
+    .hero { background: linear-gradient(var(--purple) 0 calc(100% - 4rem), var(--white) calc(100% - 4rem)); }
+    .core ul { grid-template-columns: 1fr; }
+    .core li + li { border-left: 0; border-top: 1px solid var(--line); }
+    .core a { min-height: 0; }
+    .core-cta { padding-top: 1rem; }
   }
 
-  a.card { text-decoration: none; color: inherit; transition: border-color 0.15s; }
-  a.card:hover { border-color: var(--ultraviolet); }
-  .service img { width: 34px; margin-bottom: 1.25rem; }
-  .more { display: inline-block; margin-top: 1rem; font-weight: 600; color: var(--ultraviolet); }
-  a.service--cta { background: var(--purple); border-color: var(--purple); color: #fff; }
-  .service--cta h3 { color: #fff; }
-  .service--cta .more { color: var(--uv-light); }
-
-  .why { display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem; align-items: start; }
-  .corner { width: 160px; margin-top: 1.5rem; }
-  .reasons { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.75rem; counter-reset: reason; }
-  .reasons li {
-    counter-increment: reason;
-    display: grid; grid-template-columns: auto 1fr; column-gap: 1.25rem;
-    background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 1.4rem 1.5rem;
+  /* ---------- Services index ---------- */
+  .split { display: grid; grid-template-columns: 0.8fr 1.4fr; gap: clamp(2rem, 6vw, 6rem); align-items: start; }
+  .split-head { position: sticky; top: 110px; }
+  .split-head p { color: var(--slate-muted); max-width: 26rem; }
+  .index { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--line); }
+  .index li { border-top: 1px solid var(--line); }
+  .index a {
+    display: grid; grid-template-columns: minmax(0, 15rem) 1fr auto; gap: 0.5rem 2rem; align-items: baseline;
+    padding: 1.6rem 0.25rem; text-decoration: none; color: var(--slate); transition: padding 0.25s, background 0.25s;
   }
-  .reasons li::before {
-    content: counter(reason, decimal-leading-zero);
-    grid-row: span 2; font-size: 0.85rem; font-weight: 600; color: var(--ultraviolet);
-    padding-top: 0.2rem; font-variant-numeric: tabular-nums;
-  }
-  .reasons h3 { font-size: 1.15rem; }
-  .reasons p { margin: 0; }
-  @media (max-width: 820px) { .why { grid-template-columns: 1fr; } }
-
-  .tool { border-top: 4px solid var(--ultraviolet); display: flex; flex-direction: column; }
-  .tool .more { margin-top: auto; padding-top: 1rem; }
-  .all-tools { margin: 2rem 0 0; }
-
-  .team { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
-  .person { text-align: center; }
-  .person p { color: var(--slate-muted); }
-  .avatar { width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 1rem; object-fit: cover; background: linear-gradient(160deg, var(--ultraviolet), var(--purple)); }
-  .initial {
-    display: grid; place-items: center; background: var(--purple); color: #fff;
-    font: 600 2.2rem/1 var(--font-title);
+  .index-title { font: 500 clamp(1.35rem, 2.2vw, 1.75rem)/1.15 var(--font-title); letter-spacing: -0.02em; color: var(--purple); }
+  .index-text { color: var(--slate-muted); }
+  .index-arrow { color: var(--purple); align-self: center; transition: transform 0.25s, color 0.25s; }
+  .index a:hover { padding-left: 1rem; background: var(--paper); }
+  .index a:hover .index-title, .index a:hover .index-arrow { color: var(--ultraviolet); }
+  .index a:hover .index-arrow { transform: translateX(4px); }
+  @media (max-width: 860px) {
+    .split { grid-template-columns: 1fr; }
+    .split-head { position: static; }
+    .index a { grid-template-columns: 1fr auto; }
+    .index-text { grid-column: 1; }
+    .index-arrow { grid-row: 1 / span 2; grid-column: 2; }
   }
 
-  .guides-head { display: flex; justify-content: space-between; align-items: end; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
-  .guides-head .section-head { margin: 0; }
-  .guides { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+  /* ---------- Statement + points ---------- */
+  .statement { display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; margin-bottom: clamp(2.5rem, 6vw, 4.5rem); }
+  .big-quote { font: 500 clamp(1.8rem, 3.6vw, 3rem)/1.15 var(--font-title); letter-spacing: -0.03em; color: var(--purple); max-width: 24ch; margin: 0; }
+  .corner { width: 140px; flex: none; }
+  .points { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+  .points > div { border-top: 2px solid var(--purple); padding-top: 1.25rem; }
+  .points h3 { font-size: 1.1rem; }
+  .points p { color: var(--slate-muted); margin: 0; font-size: 0.98rem; }
+  @media (max-width: 900px) { .points { grid-template-columns: 1fr 1fr; } .corner { width: 96px; } }
+  @media (max-width: 520px) { .points { grid-template-columns: 1fr; } .statement { flex-direction: column-reverse; } }
 
-  .contact { display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem; align-items: start; }
+  /* ---------- Shared row heading ---------- */
+  .row-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+  .row-head h2 { margin: 0; }
+  .sub { color: var(--slate-muted); margin: 0.5rem 0 0; }
+
+  /* ---------- Calculators ---------- */
+  .tools { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+  .tools li { border-bottom: 1px solid var(--line); }
+  .tools li:not(:nth-child(3n)) { border-right: 1px solid var(--line); }
+  .tools a { display: flex; flex-direction: column; justify-content: space-between; gap: 1.5rem; height: 100%; min-height: 150px; padding: 1.5rem; text-decoration: none; transition: background 0.2s; }
+  .tool-q { font: 500 1.3rem/1.2 var(--font-title); letter-spacing: -0.02em; color: var(--purple); }
+  .tool-name { font-size: 0.9rem; color: var(--slate-muted); }
+  .tools a:hover { background: var(--paper); }
+  .tools a:hover .tool-q { color: var(--ultraviolet); }
+  @media (max-width: 860px) {
+    .tools { grid-template-columns: 1fr 1fr; }
+    .tools li:not(:nth-child(3n)) { border-right: 0; }
+    .tools li:nth-child(odd) { border-right: 1px solid var(--line); }
+  }
+  @media (max-width: 520px) { .tools { grid-template-columns: 1fr; } .tools li:nth-child(odd) { border-right: 0; } .tools a { min-height: 0; } }
+
+  /* ---------- Team portraits ---------- */
+  .people { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+  .people a { display: grid; gap: 0.15rem; text-decoration: none; }
+  .portrait { display: block; aspect-ratio: 4 / 5; background: var(--purple); border-radius: var(--radius-sm); overflow: hidden; position: relative; margin-bottom: 0.85rem; }
+  .portrait img { position: absolute; bottom: 0; left: 50%; width: 112%; max-width: none; transform: translateX(-50%); transition: transform 0.4s; }
+  .letter { position: absolute; inset: 0; display: grid; place-items: center; font: 500 5rem/1 var(--font-title); color: var(--uv-light); }
+  .people a:hover .portrait img { transform: translateX(-50%) scale(1.03); }
+  .who { font-weight: 600; color: var(--purple); font-size: 1.05rem; }
+  .what { color: var(--slate-muted); font-size: 0.92rem; }
+  .people a:hover .who { color: var(--ultraviolet); }
+  @media (max-width: 860px) { .people { grid-template-columns: 1fr 1fr; } }
+
+  /* ---------- Guides ---------- */
+  .guides { display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+
+  /* ---------- Contact ---------- */
+  .contact { display: grid; grid-template-columns: 1fr 1.15fr; gap: clamp(2rem, 6vw, 5rem); align-items: start; }
+  .phones { list-style: none; padding: 0; margin: 1rem 0 0; border-top: 1px solid var(--line); max-width: 26rem; }
+  .phones li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.8rem 0; border-bottom: 1px solid var(--line); }
+  .phones a { color: var(--purple); text-decoration: none; font-weight: 500; }
+  .phones .tel { color: var(--slate); font-variant-numeric: tabular-nums; }
+  .phones a:hover { color: var(--ultraviolet); }
   @media (max-width: 860px) { .contact { grid-template-columns: 1fr; } }
 </style>

@@ -70,8 +70,7 @@ const schema = [
     <section class="section faq-section">
       <div class="wrap faq">
         <div>
-          <span class="eyebrow">Questions</span>
-          <h2>Good to know</h2>
+          <h2>Questions</h2>
         </div>
         <div>
           {faqs.map((f) => (
@@ -89,8 +88,8 @@ const schema = [
 </Base>
 
 <style>
-  .crumbs { margin-top: 1.5rem; font-size: 0.85rem; color: rgb(255 255 255 / 70%); }
-  .crumbs a { color: rgb(255 255 255 / 85%) !important; text-decoration: none; }
+  .crumbs { margin-top: 1.75rem; font-size: 0.85rem; color: var(--slate-muted); }
+  .crumbs a { color: var(--slate-muted); text-decoration: none; }
   .crumbs a:hover { text-decoration: underline; }
   .faq-section { padding-top: 0; }
   .faq { display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; border-top: 1px solid var(--line); padding-top: clamp(2.5rem, 6vw, 4rem); }

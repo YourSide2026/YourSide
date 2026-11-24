@@ -24,7 +24,6 @@ const { topic, topics, guides } = Astro.props;
       <nav class="crumbs" aria-label="Breadcrumb">
         <a href="/">Home</a><span aria-hidden="true">/</span><a href="/guides/">Guides</a><span aria-hidden="true">/</span><span>{topic.name}</span>
       </nav>
-      <span class="eyebrow">Topic</span>
       <h1>{topic.name}</h1>
       <p class="lede">{topic.description}</p>
     </div>
@@ -56,24 +55,20 @@ const { topic, topics, guides } = Astro.props;
 
 <style>
   .topic-hero {
-    background:
-      linear-gradient(120deg, rgb(42 22 69 / 94%) 0%, rgb(58 31 94 / 82%) 60%, rgb(74 40 120 / 75%) 100%),
-      var(--purple) url('/brand/pattern-2.jpg') center / cover;
-    color: #fff; padding-block: clamp(2rem, 5vw, 3rem) clamp(3rem, 6vw, 4rem);
+    background: var(--paper); border-bottom: 1px solid var(--line);
+    padding-block: clamp(2rem, 5vw, 3rem) clamp(3rem, 6vw, 4rem);
   }
-  .crumbs { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem; color: rgb(255 255 255 / 70%); margin-bottom: 2rem; }
-  .crumbs a { color: rgb(255 255 255 / 85%); text-decoration: none; }
-  .crumbs a:hover { color: #fff; text-decoration: underline; }
-  .topic-hero .eyebrow { color: var(--uv-light); }
-  .topic-hero h1 { color: #fff; }
-  .lede { max-width: 620px; font-size: 1.15rem; color: rgb(255 255 255 / 82%); margin: 0; }
+  .crumbs { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem; color: var(--slate-muted); margin-bottom: 2.5rem; }
+  .crumbs a { color: var(--slate-muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--ultraviolet); }
+  .lede { max-width: 40rem; font-size: 1.2rem; color: var(--slate-muted); margin: 0; }
   .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
   .chip {
-    font-size: 0.9rem; font-weight: 500; padding: 0.55rem 0.95rem; border-radius: 999px; text-decoration: none;
-    border: 1px solid #d6cfe0; color: var(--slate); background: #fff; transition: border-color 0.15s;
+    font-size: 0.92rem; font-weight: 500; padding: 0.55rem 0.95rem; border-radius: var(--radius-sm); text-decoration: none;
+    border: 1px solid #cdc4cb; color: var(--slate); background: #fff; transition: border-color 0.15s;
   }
   .chip:hover { border-color: var(--ultraviolet); color: var(--slate); }
   .chip[aria-current='page'] { background: var(--purple); border-color: var(--purple); color: #fff; }
   .count { color: var(--slate-muted); }
-  .grid-guides { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+  .grid-guides { display: grid; gap: 2.5rem 2rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
 </style>

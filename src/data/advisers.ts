@@ -13,7 +13,7 @@ export type Adviser = {
   disclosureUrl: string | null; // link to the adviser's disclosure statement (e.g. a PDF in /public/disclosure/)
   bio: string[];
   specialties: string[];
-  photo: string | null;
+  photo: string | null; // square head-and-shoulders, transparent background
 };
 
 export const advisers: Adviser[] = [
@@ -32,7 +32,7 @@ export const advisers: Adviser[] = [
       'I love seeing my clients succeed!',
     ],
     specialties: ['Home loans', 'Investment property', 'Business & commercial'],
-    photo: '/team/dan-bailey.png', // transparent PNG: shown on a brand-purple circle
+    photo: '/team/dan-bailey.webp', // transparent cut-out (PNG original: /team/dan-bailey.png)
   },
   {
     slug: 'jorja',

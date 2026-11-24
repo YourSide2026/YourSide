@@ -21,7 +21,6 @@ const key = source.toLowerCase().replace(/[^a-z]+/g, '-');
 
 <section class="lead" id="check-my-numbers" aria-labelledby="lead-title">
   <div class="lead-copy" data-nudge>
-    <span class="eyebrow">Your next step</span>
     <h2 id="lead-title" data-nudge-title>{title}</h2>
     <p data-nudge-text>{text}</p>
 
@@ -32,11 +31,7 @@ const key = source.toLowerCase().replace(/[^a-z]+/g, '-');
       <span>{advisers.map((a) => a.name).join(', ').replace(/, ([^,]*)$/, ' & $1')}, Wellington mortgage advisers</span>
     </div>
 
-    <ul class="trust">
-      <li>Your results are sent with your enquiry</li>
-      <li>We reply within one working day</li>
-      <li>No cost to you, and no credit check</li>
-    </ul>
+    <p class="small-print">Your results are sent with your enquiry, so you won’t need to repeat yourself. We usually reply within one working day, and there’s no credit check.</p>
   </div>
 
   <div class="lead-form">
@@ -80,8 +75,7 @@ const key = source.toLowerCase().replace(/[^a-z]+/g, '-');
 <style>
   .lead {
     display: grid; grid-template-columns: 1fr 1.05fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start;
-    background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--ultraviolet);
-    border-radius: var(--radius); padding: clamp(1.5rem, 4vw, 2.75rem); box-shadow: var(--shadow);
+    background: var(--paper); border-radius: var(--radius); padding: clamp(1.5rem, 4vw, 3rem);
   }
   .lead h2 { font-size: clamp(1.45rem, 2.6vw, 1.9rem); }
   .lead-copy p { color: var(--slate-muted); }
@@ -95,14 +89,10 @@ const key = source.toLowerCase().replace(/[^a-z]+/g, '-');
   .faces > *:nth-child(2) { background: var(--ultraviolet); }
   .faces > *:nth-child(3) { background: #5b2d91; }
   .faces > *:nth-child(4) { background: var(--slate); }
-  .trust { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; font-size: 0.95rem; }
-  .trust li { display: flex; gap: 0.6rem; align-items: center; }
-  .trust li::before {
-    content: ''; width: 18px; height: 18px; flex: none; border-radius: 50%;
-    background: var(--uv-100) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 8.2l2.2 2.2 4.8-4.8' fill='none' stroke='%239041f6' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 18px;
-  }
+  .small-print { font-size: 0.92rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+  .lead-form { background: #fff; border-radius: var(--radius-sm); padding: clamp(1.25rem, 3vw, 2rem); }
   .email-only { margin-top: 1.25rem; border-top: 1px solid var(--line); padding-top: 1rem; }
-  .email-only summary { cursor: pointer; font-weight: 600; color: var(--ultraviolet); font-size: 0.95rem; }
+  .email-only summary { cursor: pointer; font-weight: 500; color: var(--purple); font-size: 0.95rem; text-decoration: underline; text-decoration-color: var(--ultraviolet); text-underline-offset: 4px; }
   .email-only form { margin-top: 0.9rem; }
   .email-row { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; }
   .small { font-size: 0.85rem; margin-top: 0.6rem; }

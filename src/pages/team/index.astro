@@ -7,44 +7,47 @@ import { advisers, supportTeam, telHref } from '../../data/advisers';
 
 <Base title="Meet the team" description="Meet the YourSide team in Wellington: mortgage advisers Dan Bailey, Jorja, Callan and Bridie McKendry, and Client Services Team Lead Chanell Reynolds.">
   <PageHero
-    eyebrow="Meet the team"
+    eyebrow="Our team"
     title="Real people in your corner."
     intro="Four Wellington advisers who know how lenders think, and who’ll work hard to get your home loan across the line."
   />
 
   <section class="section">
-    <div class="wrap team">
-      {advisers.map((a) => (
-        <a class="card person" href={`/team/${a.slug}/`}>
-          {a.photo
-            ? <img class="avatar" src={a.photo} alt="" width="120" height="120" />
-            : <span class="avatar initial" aria-hidden="true">{a.name[0]}</span>}
-          <h2>{a.fullName}</h2>
-          <p class="role">{a.role}</p>
-          {a.fspNumber && <p class="fsp">FSP{a.fspNumber}</p>}
-          <ul class="tags">{a.specialties.map((s) => <li>{s}</li>)}</ul>
-          <span class="more">View profile and contact <span aria-hidden="true">→</span></span>
-        </a>
-      ))}
+    <div class="wrap">
+      <ul class="people">
+        {advisers.map((a) => (
+          <li>
+            <a href={`/team/${a.slug}/`}>
+              <span class="portrait">
+                {a.photo ? <img src={a.photo} alt="" width="480" height="480" /> : <span class="letter" aria-hidden="true">{a.name[0]}</span>}
+              </span>
+              <h2>{a.fullName}</h2>
+              <span class="role">{a.role}{a.fspNumber && <span class="fsp"> · FSP{a.fspNumber}</span>}</span>
+              <span class="spec">{a.specialties.join(', ')}</span>
+            </a>
+            {a.phone && <a class="tel" href={telHref(a.phone)}>{a.phone}</a>}
+          </li>
+        ))}
+      </ul>
     </div>
 
     {supportTeam.length > 0 && (
       <div class="wrap support">
         <h2 class="support-title">Client services</h2>
         <p class="support-intro">Keeping your application moving behind the scenes, from paperwork to settlement day.</p>
-        <div class="team">
+        <ul class="people">
           {supportTeam.map((m) => (
-            <div class="card person static">
-              {m.photo
-                ? <img class="avatar" src={m.photo} alt="" width="120" height="120" />
-                : <span class="avatar initial alt" aria-hidden="true">{m.name[0]}</span>}
+            <li>
+              <span class="portrait alt">
+                {m.photo ? <img src={m.photo} alt="" width="480" height="480" /> : <span class="letter" aria-hidden="true">{m.name[0]}</span>}
+              </span>
               <h3>{m.name}</h3>
-              <p class="role">{m.role}</p>
-              {m.phone && <p class="contact"><a href={telHref(m.phone)}>{m.phone}</a></p>}
-              {m.email && <p class="contact"><a href={`mailto:${m.email}`}>{m.email}</a></p>}
-            </div>
+              <span class="role">{m.role}</span>
+              {m.phone && <a class="tel" href={telHref(m.phone)}>{m.phone}</a>}
+              {m.email && <a class="tel" href={`mailto:${m.email}`}>{m.email}</a>}
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     )}
   </section>
@@ -53,24 +56,25 @@ import { advisers, supportTeam, telHref } from '../../data/advisers';
 </Base>
 
 <style>
-  .team { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
-  .person { text-align: center; text-decoration: none; color: inherit; transition: border-color 0.15s; }
-  .person:hover { border-color: var(--ultraviolet); }
-  h2, h3 { font-size: 1.5rem; margin-bottom: 0.2rem; }
-  .role { margin-bottom: 0.2rem; }
-  .fsp { font-size: 0.85rem; color: var(--slate-muted); margin-bottom: 1rem; }
-  .support .team { grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
-  .support { margin-top: clamp(3rem, 6vw, 4.5rem); }
-  .support-title { font-size: clamp(1.5rem, 2.6vw, 1.9rem); }
-  .support-intro { color: var(--slate-muted); margin-bottom: 1.5rem; }
-  .static:hover { border-color: var(--line); }
-  .initial.alt { background: var(--ultraviolet); }
-  .contact { margin: 0.25rem 0 0; font-weight: 600; }
-  .contact a { text-decoration: none; }
-  .role { color: var(--slate-muted); }
-  .avatar { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 1.25rem; object-fit: cover; background: linear-gradient(160deg, var(--ultraviolet), var(--purple)); }
-  .initial { display: grid; place-items: center; background: var(--purple); color: #fff; font: 600 2.75rem/1 var(--font-title); }
-  .tags { list-style: none; padding: 0; margin: 0 0 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; }
-  .tags li { background: var(--uv-50); color: var(--purple); font-size: 0.8rem; font-weight: 600; padding: 0.3rem 0.7rem; border-radius: 999px; }
-  .more { font-weight: 600; color: var(--ultraviolet); }
+  .people { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5rem 1.5rem; }
+  .people li { display: grid; align-content: start; gap: 0.2rem; }
+  .people li > a:first-child { display: grid; gap: 0.2rem; text-decoration: none; color: var(--slate); }
+  .portrait { display: block; aspect-ratio: 4 / 5; background: var(--purple); border-radius: var(--radius-sm); overflow: hidden; position: relative; margin-bottom: 1rem; }
+  .portrait.alt { background: var(--ultraviolet); }
+  .portrait img { position: absolute; bottom: 0; left: 50%; width: 112%; max-width: none; transform: translateX(-50%); transition: transform 0.4s; }
+  .letter { position: absolute; inset: 0; display: grid; place-items: center; font: 500 5.5rem/1 var(--font-title); color: var(--uv-light); }
+  .portrait.alt .letter { color: #fff; }
+  .people a:hover .portrait img { transform: translateX(-50%) scale(1.03); }
+  h2, h3 { font-size: 1.4rem; margin: 0; }
+  .people a:hover h2 { color: var(--ultraviolet); }
+  .role { color: var(--slate-muted); font-size: 0.95rem; }
+  .fsp { white-space: nowrap; }
+  .spec { font-size: 0.92rem; color: var(--slate); margin-top: 0.4rem; }
+  .tel { margin-top: 0.5rem; font-weight: 500; color: var(--purple); text-decoration: none; font-variant-numeric: tabular-nums; }
+  .tel:hover { color: var(--ultraviolet); }
+  .support { margin-top: clamp(3.5rem, 7vw, 5.5rem); padding-top: clamp(2.5rem, 5vw, 3.5rem); border-top: 1px solid var(--line); }
+  .support-title { font-size: clamp(1.6rem, 2.8vw, 2.1rem); }
+  .support-intro { color: var(--slate-muted); margin-bottom: 2rem; }
+  @media (max-width: 960px) { .people { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .people { gap: 2rem 1rem; } h2, h3 { font-size: 1.15rem; } }
 </style>

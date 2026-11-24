@@ -1,5 +1,5 @@
 ---
-// Dark purple page header with the brand line pattern.
+// Page header for inner pages: warm paper background, large type, a hairline rule.
 interface Props {
   eyebrow?: string;
   title: string;
@@ -8,7 +8,7 @@ interface Props {
 const { eyebrow, title, intro } = Astro.props;
 ---
 
-<section class="page-hero dark">
+<section class="page-hero">
   <div class="wrap">
     {eyebrow && <span class="eyebrow">{eyebrow}</span>}
     <h1>{title}</h1>
@@ -19,11 +19,10 @@ const { eyebrow, title, intro } = Astro.props;
 
 <style>
   .page-hero {
-    padding-block: clamp(3rem, 7vw, 5rem);
-    background:
-      linear-gradient(120deg, rgb(42 22 69 / 92%) 0%, rgb(58 31 94 / 78%) 60%, rgb(74 40 120 / 70%) 100%),
-      var(--purple) url('/brand/pattern-2.jpg') center / cover;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    padding-block: clamp(3rem, 7vw, 5.5rem) clamp(2.5rem, 5vw, 4rem);
   }
-  h1 { max-width: 820px; }
-  .lede { max-width: 640px; font-size: 1.15rem; line-height: 1.6; color: rgb(255 255 255 / 82%); margin: 0; }
+  h1 { max-width: 16ch; }
+  .lede { max-width: 40rem; font-size: 1.2rem; line-height: 1.6; color: var(--slate-muted); margin: 0; }
 </style>

@@ -10,7 +10,9 @@
 export type GoogleProfile = {
   id: string;
   name: string; // shown as "Reviews for …"
-  advisers: string[]; // adviser slugs this profile belongs to
+  // Adviser slugs this profile belongs to. Leave empty ([]) for a company-wide profile:
+  // a company profile's rating is shown in the homepage header automatically.
+  advisers: string[];
   rating: number; // overall star rating shown on Google
   count: number; // number of reviews on Google
   checked: string; // when rating and count were last updated (YYYY-MM-DD)
@@ -51,3 +53,6 @@ export const reviews: Review[] = [
   //   text: 'Paste the review text here, exactly as written.',
   // },
 ];
+
+/** The company-wide Google profile, once one is added (shown in the homepage header). */
+export const companyProfile = profiles.find((p) => p.advisers.length === 0);

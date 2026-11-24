@@ -8,17 +8,13 @@ const others = tools.filter((t) => t.slug !== current);
 <section class="section section--tint">
   <div class="wrap">
     <div class="head">
-      <div>
-        <span class="eyebrow">Keep going</span>
-        <h2>More calculators</h2>
-      </div>
-      <a class="btn btn--ghost" href="/calculators/">All calculators</a>
+      <h2>More calculators</h2>
+      <a class="text-link" href="/calculators/">All calculators</a>
     </div>
     <p class="carry">Numbers you’ve entered carry across, so you won’t need to type them again.</p>
     <div class="tools">
       {others.map((t) => (
         <a class="tool" href={toolUrl(t.slug)}>
-          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d={t.icon} fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
           <span class="name">{t.title}</span>
           <span class="blurb">{t.blurb}</span>
         </a>
@@ -31,13 +27,13 @@ const others = tools.filter((t) => t.slug !== current);
   .head { display: flex; justify-content: space-between; align-items: end; gap: 1rem; flex-wrap: wrap; }
   .head h2 { margin: 0; }
   .carry { color: var(--slate-muted); margin: 0.75rem 0 1.75rem; }
-  .tools { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+  .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
   .tool {
-    display: flex; flex-direction: column; gap: 0.4rem; padding: 1.4rem; background: #fff; text-decoration: none;
-    border: 1px solid var(--line); border-radius: var(--radius); transition: border-color 0.15s;
+    display: flex; flex-direction: column; gap: 0.6rem; padding: 1.5rem; text-decoration: none;
+    border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); transition: background 0.2s;
   }
-  .tool:hover { border-color: var(--ultraviolet); }
-  .tool svg { color: var(--ultraviolet); margin-bottom: 0.4rem; }
-  .name { font-weight: 600; color: var(--purple); }
+  .tool:hover { background: #fff; }
+  .name { font: 500 1.2rem/1.2 var(--font-title); letter-spacing: -0.02em; color: var(--purple); }
+  .tool:hover .name { color: var(--ultraviolet); }
   .blurb { font-size: 0.9rem; color: var(--slate-muted); }
 </style>

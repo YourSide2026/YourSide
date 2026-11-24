@@ -21,11 +21,7 @@ const total = quiz.questions.length;
         <span class="eyebrow">{quiz.eyebrow} · 60 seconds</span>
         <h1>{quiz.headline}</h1>
         <p class="sub">{quiz.subhead}</p>
-        <ul class="trust">
-          <li>Free, with no obligation</li>
-          <li>No credit check</li>
-          <li>Real advisers, based in Wellington</li>
-        </ul>
+        <p class="small">Free, with no obligation and no credit check. Answered by real advisers in Wellington.</p>
         <p class="team">
           <span class="faces" aria-hidden="true">{advisers.map((a) => a.photo ? <img src={a.photo} alt="" width="34" height="34" /> : <span>{a.name[0]}</span>)}</span>
           From {advisers.map((a) => a.name).join(', ').replace(/, ([^,]*)$/, ' & $1')} at YourSide
@@ -172,26 +168,23 @@ const total = quiz.questions.length;
 
 <style>
   .lp {
-    background:
-      radial-gradient(60% 80% at 85% 10%, rgb(144 65 246 / 45%), transparent 60%),
-      linear-gradient(135deg, var(--purple-dark), var(--purple) 60%, #4a2878);
+    background: var(--purple);
     color: #fff; padding-block: clamp(2rem, 6vw, 4.5rem);
   }
   .lp-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
   .lp .eyebrow { color: var(--uv-light); }
   .lp h1 { color: #fff; font-size: clamp(2.1rem, 4.6vw, 3.3rem); }
   .sub { font-size: 1.15rem; color: rgb(255 255 255 / 85%); max-width: 30rem; }
-  .trust { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 0.5rem; }
-  .trust li::before { content: '✓'; color: var(--uv-light); font-weight: 700; margin-right: 0.6rem; }
+  .small { margin: 1.5rem 0; padding-top: 1rem; border-top: 1px solid rgb(255 255 255 / 20%); color: rgb(255 255 255 / 75%); max-width: 28rem; }
   .team { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: rgb(255 255 255 / 75%); }
   .faces { display: flex; }
   .faces > * { display: grid; object-fit: cover; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--ultraviolet); border: 2px solid var(--purple); font-weight: 600; font-size: 0.85rem; color: #fff; }
   .faces > * + * { margin-left: -9px; }
 
-  .quiz { color: var(--slate); padding: clamp(1.5rem, 4vw, 2.25rem); box-shadow: 0 30px 60px rgb(20 8 38 / 35%); }
-  .progress { height: 6px; background: var(--uv-50); border-radius: 999px; overflow: hidden; }
+  .quiz { color: var(--slate); padding: clamp(1.5rem, 4vw, 2.5rem); border: 0; }
+  .progress { height: 4px; background: var(--paper); border-radius: 0; overflow: hidden; }
   .progress span { display: block; height: 100%; width: 0; background: var(--ultraviolet); transition: width 0.3s; }
-  .step { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate-muted); margin: 0.9rem 0 0.5rem; }
+  .step { font-size: 0.9rem; font-weight: 500; color: var(--slate-muted); margin: 0.9rem 0 0.5rem; }
   .question { border: 0; padding: 0; margin: 0 0 1.5rem; }
   .question legend { font: 600 clamp(1.25rem, 2.6vw, 1.5rem)/1.25 var(--font-title); color: var(--purple); margin-bottom: 0.4rem; letter-spacing: -0.01em; }
   .help { color: var(--slate-muted); font-size: 0.92rem; margin: 0 0 0.5rem; }
@@ -200,12 +193,12 @@ const total = quiz.questions.length;
   .answers input { position: absolute; opacity: 0; }
   .answers span {
     display: flex; align-items: center; justify-content: space-between; padding: 0.95rem 1.1rem; border-radius: var(--radius-sm);
-    border: 1.5px solid #d6cfe0; font-weight: 600; color: var(--purple); transition: border-color 0.15s, background 0.15s;
+    border: 1px solid #cdc4cb; font-weight: 500; color: var(--purple); transition: border-color 0.15s, background 0.15s;
   }
   .answers span::after { content: '→'; color: var(--ultraviolet); opacity: 0; transition: opacity 0.15s; }
   .answers label:hover span { border-color: var(--ultraviolet); }
   .answers label:hover span::after { opacity: 1; }
-  .answers input:checked + span { background: var(--ultraviolet); border-color: var(--ultraviolet); color: #fff; }
+  .answers input:checked + span { background: var(--purple); border-color: var(--purple); color: #fff; }
   .answers input:checked + span::after { color: #fff; opacity: 1; }
   .answers input:focus-visible + span { outline: 3px solid var(--ultraviolet); outline-offset: 2px; }
   /* Without JavaScript every question shows as one form */
@@ -227,6 +220,6 @@ const total = quiz.questions.length;
   .why p { color: var(--slate-muted); margin: 0; }
   @media (max-width: 860px) {
     .lp-grid, .why .reasons { grid-template-columns: 1fr; }
-    .lp-copy .trust, .lp-copy .team { display: none; }
+    .lp-copy .small, .lp-copy .team { display: none; }
   }
 </style>

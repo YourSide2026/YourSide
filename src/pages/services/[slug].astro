@@ -23,10 +23,10 @@ const others = services.filter((s) => s.slug !== service.slug);
         <ul class="ticks">
           {service.points.map((pt) => <li>{pt}</li>)}
         </ul>
-        <div class="tools">
-          <a href="/calculators/how-much-can-i-borrow/" class="btn btn--ghost">Try the borrowing calculator</a>
-          <a href="/interest-rates/" class="btn btn--ghost">See interest rates</a>
-        </div>
+        <p class="tools">
+          <a href="/calculators/how-much-can-i-borrow/" class="text-link">Try the borrowing calculator</a>
+          <a href="/interest-rates/" class="text-link">See interest rates</a>
+        </p>
       </div>
       <ContactForm source={`Service page: ${service.title}`} heading="Talk to an adviser" />
     </div>
@@ -43,20 +43,18 @@ const others = services.filter((s) => s.slug !== service.slug);
 </Base>
 
 <style>
-  .layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 3rem; align-items: start; }
+  .layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: clamp(2rem, 6vw, 5rem); align-items: start; }
+  .layout > div > p:first-child { font-size: 1.3rem; line-height: 1.5; color: var(--purple); }
   @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
-  h2 { margin-top: 1.5rem; }
-  .ticks { list-style: none; padding: 0; display: grid; gap: 0.75rem; }
-  .ticks li { position: relative; padding-left: 2rem; }
-  .ticks li::before {
-    content: ''; position: absolute; left: 0; top: 0.3em; width: 1.1rem; height: 1.1rem; border-radius: 50%;
-    background: var(--ultraviolet) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 80% no-repeat;
-  }
-  .tools { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
-  .others { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  h2 { margin-top: 2.5rem; }
+  .ticks { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
+  .ticks li { padding: 0.9rem 0 0.9rem 1.75rem; border-bottom: 1px solid var(--line); position: relative; }
+  .ticks li::before { content: ''; position: absolute; left: 0; top: 1.45rem; width: 0.7rem; height: 2px; background: var(--ultraviolet); }
+  .tools { display: flex; flex-wrap: wrap; gap: 1.75rem; margin-top: 2rem; }
+  .others { list-style: none; padding: 0; margin: 1.5rem 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); border-top: 1px solid var(--line); }
   .others a {
-    display: inline-block; padding: 0.6rem 1.1rem; border-radius: 999px; background: #fff;
-    border: 1.5px solid var(--line); font-weight: 600; text-decoration: none;
+    display: block; padding: 1.25rem 0; border-bottom: 1px solid var(--line); text-decoration: none;
+    font: 500 1.3rem/1.2 var(--font-title); letter-spacing: -0.02em; color: var(--purple);
   }
-  .others a:hover { border-color: var(--ultraviolet); }
+  .others a:hover { color: var(--ultraviolet); }
 </style>
