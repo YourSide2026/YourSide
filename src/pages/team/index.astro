@@ -2,10 +2,10 @@
 import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import CtaBand from '../../components/CtaBand.astro';
-import { advisers } from '../../data/advisers';
+import { advisers, supportTeam, telHref } from '../../data/advisers';
 ---
 
-<Base title="Meet the team" description="Meet the YourSide mortgage advisers in Wellington: Dan, Jorja, Callan and Bridie.">
+<Base title="Meet the team" description="Meet the YourSide team in Wellington: mortgage advisers Dan Bailey, Jorja, Callan and Bridie McKendry, and Client Services Team Lead Chanell Reynolds.">
   <PageHero
     eyebrow="Meet the team"
     title="Real people in your corner."
@@ -19,13 +19,34 @@ import { advisers } from '../../data/advisers';
           {a.photo
             ? <img class="avatar" src={a.photo} alt="" width="120" height="120" />
             : <span class="avatar initial" aria-hidden="true">{a.name[0]}</span>}
-          <h2>{a.name}</h2>
+          <h2>{a.fullName}</h2>
           <p class="role">{a.role}</p>
+          {a.fspNumber && <p class="fsp">FSP{a.fspNumber}</p>}
           <ul class="tags">{a.specialties.map((s) => <li>{s}</li>)}</ul>
           <span class="more">View profile and contact <span aria-hidden="true">→</span></span>
         </a>
       ))}
     </div>
+
+    {supportTeam.length > 0 && (
+      <div class="wrap support">
+        <h2 class="support-title">Client services</h2>
+        <p class="support-intro">Keeping your application moving behind the scenes, from paperwork to settlement day.</p>
+        <div class="team">
+          {supportTeam.map((m) => (
+            <div class="card person static">
+              {m.photo
+                ? <img class="avatar" src={m.photo} alt="" width="120" height="120" />
+                : <span class="avatar initial alt" aria-hidden="true">{m.name[0]}</span>}
+              <h3>{m.name}</h3>
+              <p class="role">{m.role}</p>
+              {m.phone && <p class="contact"><a href={telHref(m.phone)}>{m.phone}</a></p>}
+              {m.email && <p class="contact"><a href={`mailto:${m.email}`}>{m.email}</a></p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
   </section>
 
   <CtaBand />
@@ -35,7 +56,17 @@ import { advisers } from '../../data/advisers';
   .team { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
   .person { text-align: center; text-decoration: none; color: inherit; transition: border-color 0.15s; }
   .person:hover { border-color: var(--ultraviolet); }
-  h2 { font-size: 1.5rem; margin-bottom: 0.2rem; }
+  h2, h3 { font-size: 1.5rem; margin-bottom: 0.2rem; }
+  .role { margin-bottom: 0.2rem; }
+  .fsp { font-size: 0.85rem; color: var(--slate-muted); margin-bottom: 1rem; }
+  .support .team { grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
+  .support { margin-top: clamp(3rem, 6vw, 4.5rem); }
+  .support-title { font-size: clamp(1.5rem, 2.6vw, 1.9rem); }
+  .support-intro { color: var(--slate-muted); margin-bottom: 1.5rem; }
+  .static:hover { border-color: var(--line); }
+  .initial.alt { background: var(--ultraviolet); }
+  .contact { margin: 0.25rem 0 0; font-weight: 600; }
+  .contact a { text-decoration: none; }
   .role { color: var(--slate-muted); }
   .avatar { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 1.25rem; object-fit: cover; }
   .initial { display: grid; place-items: center; background: var(--purple); color: #fff; font: 600 2.75rem/1 var(--font-title); }
