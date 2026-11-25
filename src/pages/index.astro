@@ -9,6 +9,7 @@ import { getGuides } from '../lib/guides';
 
 const latestGuides = (await getGuides()).slice(0, 3);
 import { companyProfile } from '../data/reviews';
+import FestiveOverlay from '../components/FestiveOverlay.astro';
 
 // The four core actions across the bottom of the header
 const actions = [
@@ -26,6 +27,7 @@ const actions = [
       <path d="M114.15 71.28c0-11.88-9.63-21.52-21.52-21.52s-21.52 9.63-21.52 21.52 9.63 21.52 21.52 21.52 21.52-9.63 21.52-21.52" />
       <path d="M106.6 4.02c.85-1.22.56-2.2-.66-2.2H73.47c-1.22 0-2.9.99-3.75 2.2L53.25 27.54c-1.04 1.39-2.65 3.2-5.46 2.32-3.39-1.06-3-7.61-3.92-12.18-.47-2.34-2.09-6.4-3.41-8.22C30.33-4.8 7.08-1.74 1.33 14.81c-5.44 14.82 6.53 30.43 22.25 29.35 7.23-.49 13.62-5.33 16.76-2.39.63.59 1.43 2.32.2 3.91L9.91 89.43c-.85 1.22-.56 2.2.66 2.2h32.47c1.22 0 2.9-.99 3.75-2.2L106.6 4.02Z" />
     </svg>
+    <FestiveOverlay />
 
     <div class="wrap hero-top">
       <h1 class="rise" style="--d:0ms">A better way forward starts with <span class="accent">YourSide.</span></h1>

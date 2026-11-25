@@ -1,0 +1,125 @@
+---
+// Summer-Christmas overlay for the homepage hero: a pōhutukawa sprig, a few drifting
+// blossoms and a small seasonal note. It sits on top of the normal header and changes
+// nothing underneath. Switch it on or off (and set the end date) in src/data/site.ts.
+import { site } from '../data/site';
+
+const { enabled, note, until } = site.festive;
+
+// Pōhutukawa blossom: a burst of fine red stamens with gold tips.
+function blossom(cx: number, cy: number, r: number, n = 22, seed = 1) {
+  const parts: string[] = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 + Math.sin(i * 7.3 + seed) * 0.12;
+    const len = r * (0.72 + ((Math.sin(i * 12.9898 + seed * 78.233) * 43758.5453) % 1 + 1) % 1 * 0.28);
+    const x = +(cx + Math.cos(a) * len).toFixed(1);
+    const y = +(cy + Math.sin(a) * len).toFixed(1);
+    parts.push(`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" />`);
+    parts.push(`<circle cx="${x}" cy="${y}" r="${(r * 0.055).toFixed(1)}" class="tip" />`);
+  }
+  return `<g class="bloom"><circle cx="${cx}" cy="${cy}" r="${(r * 0.22).toFixed(1)}" class="core" />${parts.join('')}</g>`;
+}
+
+const sprig = [
+  // Stem, hanging in from the top-right corner
+  `<path class="stem" d="M420 -10 C 380 40, 330 70, 270 92 S 170 130, 120 176" />`,
+  `<path class="stem thin" d="M300 80 C 300 120, 285 150, 262 178" />`,
+  `<path class="stem thin" d="M200 118 C 175 112, 150 98, 132 76" />`,
+  // Leaves: dark top, silvery underside
+  `<path class="leaf" d="M352 50 c -22 -30 -64 -34 -84 -22 c 22 24 58 32 84 22z" />`,
+  `<path class="leaf under" d="M330 70 c 8 34 36 56 60 56 c -8 -28 -32 -50 -60 -56z" />`,
+  `<path class="leaf" d="M238 104 c -10 -34 -46 -52 -70 -46 c 12 28 44 48 70 46z" />`,
+  `<path class="leaf under" d="M214 124 c 18 26 50 38 72 30 c -18 -22 -48 -34 -72 -30z" />`,
+  `<path class="leaf" d="M160 150 c -32 -6 -62 14 -68 36 c 30 2 58 -14 68 -36z" />`,
+  blossom(262, 186, 34, 24, 1),
+  blossom(128, 70, 28, 20, 2),
+  blossom(120, 184, 30, 22, 3),
+  blossom(392, 96, 24, 18, 4),
+].join('');
+
+// Drifting blossoms: fixed pseudo-random positions so every build looks the same
+const drift = Array.from({ length: 12 }, (_, i) => ({
+  left: (i * 37 + 11) % 100,
+  size: 10 + ((i * 7) % 4) * 3,
+  dur: 14 + ((i * 5) % 9),
+  delay: -((i * 3.7) % 18),
+  sway: ((i % 3) - 1) * 40,
+}));
+const mini = blossom(20, 20, 18, 14, 9);
+---
+
+{enabled && (
+  <div class="festive" data-festive data-until={until ?? ''} aria-hidden="true">
+    <svg class="sprig" viewBox="80 -10 360 240" set:html={sprig} />
+    <div class="drift">
+      {drift.map((d) => (
+        <svg
+          viewBox="0 0 40 40"
+          style={`--x:${d.left}%;--s:${d.size}px;--dur:${d.dur}s;--delay:${d.delay}s;--sway:${d.sway}px`}
+          set:html={mini}
+        />
+      ))}
+    </div>
+  </div>
+)}
+{enabled && note && <div class="festive-note" data-festive><p class="wrap">{note}</p></div>}
+
+{enabled && until && (
+  <script is:inline define:vars={{ until }}>
+    // Hide automatically after the end date, even if the site hasn't been rebuilt
+    if (Date.now() > new Date(until + 'T23:59:59+13:00').getTime()) {
+      document.querySelectorAll('[data-festive]').forEach((el) => el.remove());
+    }
+  </script>
+)}
+
+<style>
+  .festive { position: absolute; inset: 0 0 7rem; pointer-events: none; overflow: hidden; }
+
+  .sprig {
+    position: absolute; top: -18px; right: -10px; width: clamp(220px, 24vw, 340px); height: auto;
+    transform-origin: 100% 0; animation: hang 9s ease-in-out infinite alternate;
+  }
+  .sprig :global(.stem) { fill: none; stroke: #5b3a2e; stroke-width: 5; stroke-linecap: round; }
+  .sprig :global(.stem.thin) { stroke-width: 3; }
+  .sprig :global(.leaf) { fill: #2f5d46; }
+  .sprig :global(.leaf.under) { fill: #8aa596; }
+  .festive :global(.bloom line) { stroke: #e0283e; stroke-width: 1.6; stroke-linecap: round; }
+  .festive :global(.bloom .tip) { fill: #f3c24b; }
+  .festive :global(.bloom .core) { fill: #b51d31; }
+
+  .drift svg {
+    position: absolute; top: -40px; left: var(--x); width: var(--s); height: var(--s); opacity: 0;
+    animation: fall var(--dur) linear var(--delay) infinite;
+  }
+
+  .festive-note {
+    position: absolute; top: 1.4rem; left: 0; right: 0; z-index: 1;
+    font-size: 0.9rem; color: rgb(255 255 255 / 78%); pointer-events: none;
+  }
+  .festive-note p { margin-block: 0; }
+  .festive-note p::before { content: ''; display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #e0283e; margin-right: 0.55rem; vertical-align: 0.08em; }
+
+  @keyframes hang { from { transform: rotate(-1.5deg); } to { transform: rotate(1.5deg); } }
+  @keyframes fall {
+    0% { opacity: 0; transform: translate(0, 0) rotate(0); }
+    10% { opacity: 0.9; }
+    50% { transform: translate(var(--sway), 50vh) rotate(180deg); }
+    85% { opacity: 0.7; }
+    100% { opacity: 0; transform: translate(0, 100vh) rotate(360deg); }
+  }
+
+  @media (max-width: 960px) {
+    .sprig { width: 200px; right: -30px; top: -24px; }
+    .drift svg:nth-child(n + 8) { display: none; }
+  }
+  @media (max-width: 560px) {
+    .festive { bottom: 4rem; }
+    .sprig { width: 120px; right: -50px; top: -22px; }
+    .festive-note { top: 1rem; font-size: 0.8rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sprig { animation: none; }
+    .drift { display: none; }
+  }
+</style>

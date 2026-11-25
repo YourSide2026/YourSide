@@ -17,6 +17,13 @@ export const site = {
     instagram: null as string | null,
     linkedin: null as string | null,
   },
+  // Festive overlay on the homepage header (pōhutukawa sprig and drifting blossoms).
+  // Set enabled to false to switch it off. It also hides itself after the 'until' date.
+  festive: {
+    enabled: true,
+    note: 'Meri Kirihimete from the YourSide team' as string | null, // small line at the top, or null to hide
+    until: '2027-01-10' as string | null, // YYYY-MM-DD, or null for no end date
+  },
 };
 
 export const nav = [
